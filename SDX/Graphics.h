@@ -11,7 +11,7 @@ namespace SDX
             virtual ~Graphics();
 
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
-            void CreateShaders();
+            void LoadShaders();
             void LoadMesh();
             void Update();
             void Render();
