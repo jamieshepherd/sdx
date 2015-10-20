@@ -1,0 +1,24 @@
+﻿Build started 20/10/2015 17:03:56.
+     1>Project "D:\Projects\SDX\SDX\SDX.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         D:\Applications\Visual Studio 2013\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Graphics.cpp Input.cpp Main.cpp Engine.cpp Shader.cpp
+         Graphics.cpp
+         Input.cpp
+         Main.cpp
+         Engine.cpp
+     1>Engine.cpp(13): warning C4316: 'SDX::Graphics' : object allocated on the heap may not be aligned 16
+         Shader.cpp
+       Link:
+         D:\Applications\Visual Studio 2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\SDX\Release\SDX.exe" /NOLOGO d3d11.lib d3dcompiler.lib dinput8.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\SDX\Release\SDX.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\SDX\Release\SDX.lib" /MACHINE:X86 /SAFESEH Release\Graphics.obj
+         Release\Input.obj
+         Release\Main.obj
+         Release\Engine.obj
+         Release\Shader.obj
+         Generating code
+         Finished generating code
+         SDX.vcxproj -> D:\Projects\SDX\Release\SDX.exe
+     1>Done Building Project "D:\Projects\SDX\SDX\SDX.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.14
