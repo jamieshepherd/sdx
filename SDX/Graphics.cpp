@@ -302,20 +302,20 @@ namespace SDX
         // World matrix
         XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixIdentity();
-        WorldMatrix = WorldMatrix * XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+        //WorldMatrix = XMMatrixTranslation(2.0f, 2.0f, 4.0f);
         XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
         // View matrix
         XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
-        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
-        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 1.0f);
+        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
+        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
         ViewMatrix = XMMatrixLookAtLH(Eye,At,Up);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
 
         XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&m_ProjectionMatrix);
         
-        ProjectionMatrix = XMMatrixPerspectiveLH(XM_PIDIV4, 1024 / 768, 0.01f, 100.0f);
+        ProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.01f, 100.0f);
         XMStoreFloat4x4(&m_ProjectionMatrix, ProjectionMatrix);
     }
 
@@ -351,15 +351,13 @@ namespace SDX
             t = (timeCur - timeStart) / 1000.0f;
         }
 
-        //
         // Animate the cube
-        //
         XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixRotationY(t);
         XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
         // Clear the screen and stencil view
-        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::MidnightBlue);
+        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
         //m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
         ConstantBuffer constantBuffer;
