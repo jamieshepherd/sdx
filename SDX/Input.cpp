@@ -2,9 +2,7 @@
 
 namespace SDX
 {
-    Input::Input(HINSTANCE* m_pInstance, HWND* m_pWindowHandle) :
-        m_Instance(m_pInstance),
-        m_WindowHandle(m_pWindowHandle)
+    Input::Input()
     {
 
     }
@@ -14,7 +12,7 @@ namespace SDX
 
     }
 
-    void Input::InitDirectInput()
+    void Input::InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle)
     {
         ZeroMemory(m_KeyboardKeys, sizeof(m_KeyboardKeys));
         ZeroMemory(m_PrevKeyboardKeys, sizeof(m_PrevKeyboardKeys));
@@ -61,6 +59,7 @@ namespace SDX
         // Up arrow KEY UP (key was down, now it's not, therefore key up)
         if (KEYDOWN(m_PrevKeyboardKeys, DIK_UP) && !KEYDOWN(m_KeyboardKeys, DIK_UP)) {
             // Do something
+            PostQuitMessage(0);
         }
 
         // Copy the current set to previous keys for the next iteration

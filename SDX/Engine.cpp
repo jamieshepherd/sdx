@@ -10,8 +10,9 @@ Engine::Engine(HINSTANCE instance, const std::wstring& className, const std::wst
     m_ScreenWidth = 1024;
     m_ScreenHeight = 768;
 
-    g_Graphics = new SDX::Graphics(&m_ScreenWidth, &m_ScreenHeight, &m_WindowHandle, &m_Window);
-    g_Input    = new SDX::Input(&m_Instance, &m_WindowHandle);
+    //g_Graphics = new SDX::Graphics();
+    //g_Input    = new SDX::Input(&m_Instance, &m_WindowHandle);
+    
 }
 
 //--------------------------------------------------------------------------------------
@@ -31,8 +32,8 @@ Engine::~Engine()
 void Engine::Run()
 {
     InitWindow();
-    g_Graphics->InitDirectX();
-    g_Input->InitDirectInput();
+    g_Graphics.InitDirectX(&m_ScreenWidth, &m_ScreenHeight, &m_WindowHandle, &m_Window);
+    g_Input.InitDirectInput(&m_Instance, &m_WindowHandle);
     MSG message;
     ZeroMemory(&message, sizeof(message));
 
@@ -86,8 +87,8 @@ void Engine::InitWindow()
 //--------------------------------------------------------------------------------------
 void Engine::Update()
 {
-    g_Input->Process();
-    g_Graphics->Render();
+    g_Input.Process();
+    g_Graphics.Render();
 }
 
 //--------------------------------------------------------------------------------------
@@ -105,9 +106,9 @@ void Engine::Shutdown()
 //--------------------------------------------------------------------------------------
 void Engine::Exit()
 {
-    g_Graphics->Shutdown();
-    g_Input->Shutdown();
-    this->Shutdown();
+    g_Graphics.Shutdown();
+    g_Input.Shutdown();
+    Shutdown();
 
     UnregisterClass(m_ClassName.c_str(), m_Window.hInstance);
 }

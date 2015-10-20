@@ -12,6 +12,7 @@
 
 #include <d3d11_1.h>
 #include <DirectXMath.h>
+#include <directxcolors.h>
 #include <DirectXPackedVector.h>
 #include <D3Dcompiler.h>
 #define DIRECTINPUT_VERSION 0x0800

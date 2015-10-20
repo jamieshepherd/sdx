@@ -7,10 +7,10 @@ namespace SDX
     class Input
     {
         public:
-            Input(HINSTANCE* m_Instance, HWND* m_WindowHandle);
+            Input();
             virtual ~Input();
 
-            void InitDirectInput();
+            void InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle);
             void Process();
             void Shutdown();
 

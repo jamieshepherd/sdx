@@ -7,10 +7,10 @@ namespace SDX
     class Graphics
     {
         public:
-            Graphics(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
+            Graphics();
             virtual ~Graphics();
 
-            void InitDirectX();
+            void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void CreateShaders();
             void LoadMesh();
             void Update();
@@ -41,6 +41,7 @@ namespace SDX
             ID3D11Buffer*           g_pVertexBuffer;
             ID3D11Buffer*           g_pIndexBuffer;
 
+            ID3D11Buffer*           g_pConstantBuffer;
             ID3D11Buffer*           g_pWorldConstantBuffer;
             ID3D11Buffer*           g_pViewConstantBuffer;
             ID3D11Buffer*           g_pProjectionConstantBuffer;

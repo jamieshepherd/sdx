@@ -13,11 +13,12 @@ namespace SDX {
             Engine(HINSTANCE instance, const std::wstring& className, const std::wstring& windowTitle, int showCommand);
             virtual ~Engine();
 
-            SDX::Graphics*          g_Graphics;
-            SDX::Input*             g_Input;
+            SDX::Graphics           g_Graphics;
+            SDX::Input              g_Input;
 
             void Run();
             void InitWindow();
+            
             void Update();
             void Shutdown();
             void Exit();

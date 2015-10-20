@@ -1,16 +1,25 @@
 #include "Graphics.h"
 
+struct VERTEX
+{
+    XMFLOAT3 pos;
+    XMFLOAT4 color;
+};
+
+struct ConstantBuffer
+{
+    XMMATRIX World;
+    XMMATRIX View;
+    XMMATRIX Projection;
+};
+
 namespace SDX
 {
     //--------------------------------------------------------------------------------------
     // Graphics()
     // Graphics constructor, take in some values from Engine as pointers
     //--------------------------------------------------------------------------------------
-    Graphics::Graphics(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow) :
-        m_ScreenWidth(m_pScreenWidth),
-        m_ScreenHeight(m_pScreenHeight),
-        m_WindowHandle(m_pWindowHandle),
-        m_Window(m_pWindow)
+    Graphics::Graphics()
     {
         m_DriverType = D3D_DRIVER_TYPE_HARDWARE;
     }
@@ -24,18 +33,18 @@ namespace SDX
 
     }
 
-    struct VERTEX
-    {
-        XMFLOAT4 pos;
-        XMFLOAT4 color;
-    };
-
     //--------------------------------------------------------------------------------------
     // void InitDirectX()
     // Initialise the DirectX device, swap chain, and buffers
     //--------------------------------------------------------------------------------------
-    void Graphics::InitDirectX()
-    {            
+    void Graphics::InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow)
+    {   
+
+        m_ScreenWidth = m_pScreenWidth;
+        m_ScreenHeight = m_pScreenHeight;
+        m_WindowHandle = m_pWindowHandle;
+        m_Window = m_pWindow;
+
         UINT createDeviceFlags = 0;
 
         #if defined(DEBUG) || defined(_DEBUG)  
@@ -126,7 +135,7 @@ namespace SDX
         // IF FAILED ReleaseObject(backBuffer);
         ReleaseObject(backBuffer);
 
-        D3D11_TEXTURE2D_DESC depthStencilDesc;
+        /*D3D11_TEXTURE2D_DESC depthStencilDesc;
         ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
         depthStencilDesc.Width = *m_ScreenWidth;
         depthStencilDesc.Height = *m_ScreenHeight;
@@ -136,15 +145,15 @@ namespace SDX
         depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
         depthStencilDesc.SampleDesc.Count = multiSamplingCount;
-        depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;
+        depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;*/
 
         // ERROR CHECK
         // 2D texture which acts as our depth buffer
-        m_pDirect3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
+        //m_pDirect3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
 
         // ERROR CHECK
         // Create the depth stencil view, take in the stencil descriptor
-        m_pDirect3DDevice->CreateDepthStencilView(m_pDepthStencilBuffer, nullptr, &m_pDepthStencilView);
+        //m_pDirect3DDevice->CreateDepthStencilView(m_pDepthStencilBuffer, nullptr, &m_pDepthStencilView);
 
         D3D11_VIEWPORT viewport;
         viewport.TopLeftX = 0.0f;
@@ -154,7 +163,8 @@ namespace SDX
         viewport.MinDepth = 0.0f;
         viewport.MaxDepth = 1.0f;
 
-        m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+        //m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+        m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
         m_pDirect3DDeviceContext->RSSetViewports(1, &viewport);
 
         CreateShaders();
@@ -168,13 +178,14 @@ namespace SDX
     void Graphics::CreateShaders()
     {
         // Compile our shaders to a blob type
-        ID3D10Blob *VS, *PS;
-        D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_4_0", 0, 0, &VS, 0);
-        D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_4_0", 0, 0, &PS, 0);
+        ID3DBlob* pVSBlob = nullptr;
+        ID3DBlob* pPSBlob = nullptr;
+        D3DCompileFromFile(L"VertexShader.hlsl", nullptr, nullptr, "main", "vs_4_0", 0, 0, &pVSBlob, 0);
+        D3DCompileFromFile(L"PixelShader.hlsl", nullptr, nullptr, "main", "ps_4_0", 0, 0, &pPSBlob, 0);
 
         // Create our shaders
-        m_pDirect3DDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), nullptr, &m_pVertexShader);
-        m_pDirect3DDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), nullptr, &m_pPixelShader);
+        m_pDirect3DDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &m_pVertexShader);
+        m_pDirect3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShader);
 
         // Describe how the input will be laid out to the buffer
         
@@ -184,7 +195,11 @@ namespace SDX
         };
         UINT totalLayoutElements = ARRAYSIZE(inputElementDesc);
 
-        m_pDirect3DDevice->CreateInputLayout(inputElementDesc, totalLayoutElements, VS->GetBufferPointer(), VS->GetBufferSize(), &m_pInputLayout);
+        m_pDirect3DDevice->CreateInputLayout(inputElementDesc, totalLayoutElements, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pInputLayout);
+        m_pDirect3DDeviceContext->IASetInputLayout(m_pInputLayout);
+
+        ReleaseObject(pVSBlob);
+        ReleaseObject(pPSBlob);
     }
 
     //--------------------------------------------------------------------------------------
@@ -196,42 +211,21 @@ namespace SDX
         // Define some vertices
         VERTEX vertices[] =
         {
-            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-
-            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-
-            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-
-            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-
-            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-
-            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
+            { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+            { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
         };
 
         // Buffer description
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-        bufferDesc.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(vertices);          // Size is the vertex struct times the amount of vertices
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;             // Write access for CPU and GPU
+        bufferDesc.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(vertices);          // Size is the vertex struct times the amount of vertices
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;    // Use as a vertex buffer
 
         // Subresource data
@@ -242,54 +236,76 @@ namespace SDX
         // Actually create the buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pVertexBuffer);
 
+
+        // Set vertex buffer
+        UINT stride = sizeof(VERTEX);
+        UINT offset = 0;
+        m_pDirect3DDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
         // Create an index buffer
         WORD indices[] =
         {
-            3, 1, 0, 2, 1, 3,
-            6, 4, 5, 7, 4, 6,
-            11, 9, 8, 10, 9, 11,
-            14, 12, 13, 15, 12, 14,
-            19, 17, 16, 18, 17, 19,
-            22, 20, 21, 23, 20, 22
+            3, 1, 0,
+            2, 1, 3,
+
+            0, 5, 4,
+            1, 5, 0,
+
+            3, 4, 7,
+            0, 4, 3,
+
+            1, 6, 5,
+            2, 6, 1,
+
+            2, 7, 6,
+            3, 7, 2,
+
+            6, 4, 5,
+            7, 4, 6,
         };
 
-        D3D11_BUFFER_DESC indexBufferDesc;
-        ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-        indexBufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);        // 36 vertices needed for 12 triangles in a triangle list
-        indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
+        // Index buffer
+        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+        bufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);        // 36 vertices needed for 12 triangles in a triangle list
+        bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
         resourceData.pSysMem = indices;
+        m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pIndexBuffer);
 
-        m_pDirect3DDevice->CreateBuffer(&indexBufferDesc, &resourceData, &g_pIndexBuffer);
+        // Set index buffer
+        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-        // Texture sampler state here
+        // Set primitive topology
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
         // Describe constant buffers
         // TODO What does constant buffer actually do
-        D3D11_BUFFER_DESC constantBufferDesc;
-        ZeroMemory(&constantBufferDesc, sizeof(constantBufferDesc));
-        constantBufferDesc.ByteWidth = sizeof(XMMATRIX);
-        constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        bufferDesc.ByteWidth = sizeof(ConstantBuffer);
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = 0;
 
-        // Create constant buffer for VIEW
-        m_pDirect3DDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_pViewConstantBuffer);
+        // Create constant buffer
+        m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &g_pConstantBuffer);
 
-        // Create constant buffer for PROJECTION
-        m_pDirect3DDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_pProjectionConstantBuffer);
+        // World matrix
+        XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+        WorldMatrix = XMMatrixIdentity();
+        WorldMatrix = WorldMatrix * XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+        XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
-        // Create constant buffer for WORLD
-        m_pDirect3DDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_pWorldConstantBuffer);
-
+        // View matrix
         XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
-        ViewMatrix          = XMMatrixIdentity();
-        ViewMatrix          = XMMatrixTranspose(ViewMatrix);
+        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
+        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        ViewMatrix = XMMatrixLookAtLH(Eye,At,Up);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
 
         XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&m_ProjectionMatrix);
-        ProjectionMatrix          = XMMatrixPerspectiveLH(XM_PIDIV4, 800.0f / 600.0f, 0.01f, 100.0f);
-        ProjectionMatrix          = XMMatrixTranspose(ProjectionMatrix);
+        //ProjectionMatrix = XMMatrixPerspectiveLH(XM_PIDIV4, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.01f, 100.0f);
+        ProjectionMatrix = XMMatrixPerspectiveLH(XM_PIDIV4, 1024 / 768, 0.01f, 100.0f);
         XMStoreFloat4x4(&m_ProjectionMatrix, ProjectionMatrix);
     }
 
@@ -311,48 +327,22 @@ namespace SDX
         Update();
 
         // Clear the screen and stencil view
-        DirectX::XMVECTORF32 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, reinterpret_cast<const float*>(&ClearColor));
-        m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
+        //m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-        // Select which vertex buffer to display
-        UINT stride = sizeof(VERTEX);
-        UINT offset = 0;
-        
-        // Set input layout and buffers
-        m_pDirect3DDeviceContext->IASetInputLayout(m_pInputLayout);
-        m_pDirect3DDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        ConstantBuffer constantBuffer;
+        constantBuffer.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix));
+        constantBuffer.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
+        constantBuffer.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
+
+        // What does this do?
+        m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer, 0, 0);
+
 
         // Set shaders to be the active shaders
         m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+        m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-
-        // Matrix shit
-        /*DirectX::XMMATRIX worldMatrix = DirectX::XMLoadFloat4x4(&m_WorldMatrix);
-        DirectX::XMMATRIX wvp = worldMatrix;
-        wvp = DirectX::XMMatrixTranspose(wvp);
-        DirectX::XMStoreFloat4x4(&m_CBufferPerObject.WorldViewProjection, wvp);*/
-
-        /*XMFLOAT4X4 rotationMat = XMMatrixRotationRollPitchYaw(0.0f, 0.7f, 0.7f);
-        XMFLOAT4X4 translationMat = XMMatrixTranslation(0.0f, 0.0f, 6.0f);*/
-
-        //m_WorldMatrix = rotationMat * translationMat;
-
-        XMMATRIX worldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
-        worldMatrix = XMMatrixTranspose(worldMatrix);
-        XMStoreFloat4x4(&m_WorldMatrix, worldMatrix);
-
-        // What does this do?
-        m_pDirect3DDeviceContext->UpdateSubresource(g_pWorldConstantBuffer, 0, nullptr, &m_WorldMatrix, 0, 0);
-        m_pDirect3DDeviceContext->UpdateSubresource(g_pViewConstantBuffer, 0, nullptr, &m_ViewMatrix, 0, 0);
-        m_pDirect3DDeviceContext->UpdateSubresource(g_pProjectionConstantBuffer, 0, nullptr, &m_ProjectionMatrix, 0, 0);
-
-        // Set constant buffers
-        m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &g_pWorldConstantBuffer);
-        m_pDirect3DDeviceContext->VSSetConstantBuffers(1, 1, &g_pViewConstantBuffer);
-        m_pDirect3DDeviceContext->VSSetConstantBuffers(2, 1, &g_pProjectionConstantBuffer);
 
         // Draw vertex buffer to the back buffer
         m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
