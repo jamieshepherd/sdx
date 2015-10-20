@@ -26,8 +26,8 @@ namespace SDX
 
     struct VERTEX
     {
-        DirectX::XMFLOAT4 pos;
-        DirectX::XMFLOAT4 color;
+        XMFLOAT4 pos;
+        XMFLOAT4 color;
     };
 
     //--------------------------------------------------------------------------------------
@@ -196,35 +196,35 @@ namespace SDX
         // Define some vertices
         VERTEX vertices[] =
         {
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
 
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
 
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
 
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
 
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
 
-            { DirectX::XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { DirectX::XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
+            { XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+            { XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
         };
 
         // Buffer description
@@ -258,11 +258,10 @@ namespace SDX
         indexBufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);        // 36 vertices needed for 12 triangles in a triangle list
         indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
         indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        D3D11_SUBRESOURCE_DATA indexResourceData;
-        ZeroMemory(&indexResourceData, sizeof(indexResourceData));
-        indexResourceData.pSysMem = indices;
 
-        m_pDirect3DDevice->CreateBuffer(&indexBufferDesc, &indexResourceData, &g_pIndexBuffer);
+        resourceData.pSysMem = indices;
+
+        m_pDirect3DDevice->CreateBuffer(&indexBufferDesc, &resourceData, &g_pIndexBuffer);
 
         // Texture sampler state here
 
@@ -270,7 +269,7 @@ namespace SDX
         // TODO What does constant buffer actually do
         D3D11_BUFFER_DESC constantBufferDesc;
         ZeroMemory(&constantBufferDesc, sizeof(constantBufferDesc));
-        constantBufferDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
+        constantBufferDesc.ByteWidth = sizeof(XMMATRIX);
         constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
@@ -283,11 +282,15 @@ namespace SDX
         // Create constant buffer for WORLD
         m_pDirect3DDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_pWorldConstantBuffer);
 
-        m_ViewMatrix = DirectX::XMMatrixIdentity();
-        m_ProjectionMatrix = DirectX::XMMatrixPerspectiveLH(DirectX::XM_PIDIV4, 800.0f / 600.0f, 0.01f, 100.0f);
+        XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
+        ViewMatrix          = XMMatrixIdentity();
+        ViewMatrix          = XMMatrixTranspose(ViewMatrix);
+        XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
 
-        m_ViewMatrix = DirectX::XMMatrixTranspose(m_ViewMatrix);
-        m_ProjectionMatrix = DirectX::XMMatrixTranspose(m_ProjectionMatrix);
+        XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&m_ProjectionMatrix);
+        ProjectionMatrix          = XMMatrixPerspectiveLH(XM_PIDIV4, 800.0f / 600.0f, 0.01f, 100.0f);
+        ProjectionMatrix          = XMMatrixTranspose(ProjectionMatrix);
+        XMStoreFloat4x4(&m_ProjectionMatrix, ProjectionMatrix);
     }
 
     //--------------------------------------------------------------------------------------
@@ -319,7 +322,7 @@ namespace SDX
         // Set input layout and buffers
         m_pDirect3DDeviceContext->IASetInputLayout(m_pInputLayout);
         m_pDirect3DDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
         m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // Set shaders to be the active shaders
@@ -332,11 +335,14 @@ namespace SDX
         wvp = DirectX::XMMatrixTranspose(wvp);
         DirectX::XMStoreFloat4x4(&m_CBufferPerObject.WorldViewProjection, wvp);*/
 
-        DirectX::XMMATRIX rotationMat = DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.7f, 0.7f);
-        DirectX::XMMATRIX translationMat = DirectX::XMMatrixTranslation(0.0f, 0.0f, 6.0f);
+        /*XMFLOAT4X4 rotationMat = XMMatrixRotationRollPitchYaw(0.0f, 0.7f, 0.7f);
+        XMFLOAT4X4 translationMat = XMMatrixTranslation(0.0f, 0.0f, 6.0f);*/
 
-        m_WorldMatrix = rotationMat * translationMat;
-        m_WorldMatrix = DirectX::XMMatrixTranspose(m_WorldMatrix);
+        //m_WorldMatrix = rotationMat * translationMat;
+
+        XMMATRIX worldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+        worldMatrix = XMMatrixTranspose(worldMatrix);
+        XMStoreFloat4x4(&m_WorldMatrix, worldMatrix);
 
         // What does this do?
         m_pDirect3DDeviceContext->UpdateSubresource(g_pWorldConstantBuffer, 0, nullptr, &m_WorldMatrix, 0, 0);

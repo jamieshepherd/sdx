@@ -41,12 +41,12 @@ namespace SDX
             ID3D11Buffer*           g_pVertexBuffer;
             ID3D11Buffer*           g_pIndexBuffer;
 
+            ID3D11Buffer*           g_pWorldConstantBuffer;
             ID3D11Buffer*           g_pViewConstantBuffer;
             ID3D11Buffer*           g_pProjectionConstantBuffer;
-            ID3D11Buffer*           g_pWorldConstantBuffer;
 
-            DirectX::XMMATRIX       m_WorldMatrix;
-            DirectX::XMMATRIX       m_ViewMatrix;
-            DirectX::XMMATRIX       m_ProjectionMatrix;
+            XMFLOAT4X4              m_WorldMatrix;
+            XMFLOAT4X4              m_ViewMatrix;
+            XMFLOAT4X4              m_ProjectionMatrix;
     };
 }
