@@ -300,7 +300,6 @@ namespace SDX
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &g_pConstantBuffer);
 
         XMMATRIX WorldMatrix;
-
         // World matrix 1 (CUBE 1)        
         WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix1);
         WorldMatrix = XMMatrixIdentity();
@@ -313,14 +312,13 @@ namespace SDX
 
         // View matrix
         XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
-        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 1.0f);
-        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
-        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
+        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
+        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
         ViewMatrix = XMMatrixLookAtLH(Eye,At,Up);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
 
         XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&m_ProjectionMatrix);
-        
         ProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.01f, 100.0f);
         XMStoreFloat4x4(&m_ProjectionMatrix, ProjectionMatrix);
     }
@@ -391,12 +389,11 @@ namespace SDX
 
         // Update variables for SECOND CUBE
         ConstantBuffer constantBuffer2;
-        constantBuffer2.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix1));
+        constantBuffer2.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix2));
         constantBuffer2.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
         constantBuffer2.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
         m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer2, 0, 0);
                
-
         // Draw vertex buffer to the back buffer
         m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
 
