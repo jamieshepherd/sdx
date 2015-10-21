@@ -301,14 +301,9 @@ namespace SDX
 
         XMMATRIX WorldMatrix;
         // World matrix 1 (CUBE 1)        
-        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix1);
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixIdentity();
-        XMStoreFloat4x4(&m_WorldMatrix1, WorldMatrix);
-
-        // World matrix 2 (CUBE 2)
-        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix2);
-        WorldMatrix = XMMatrixIdentity();
-        XMStoreFloat4x4(&m_WorldMatrix2, WorldMatrix);
+        XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
         // View matrix
         XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
@@ -330,6 +325,14 @@ namespace SDX
     void Graphics::Update()
     {
         
+    }
+
+    void Graphics::SetTopology(D3D_PRIMITIVE_TOPOLOGY topology)
+    {
+        g_Topology = topology;
+        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(topology);
+        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
     }
 
     //--------------------------------------------------------------------------------------
@@ -357,18 +360,9 @@ namespace SDX
 
         XMMATRIX WorldMatrix;
         // CUBE 1 - Rotate around the origin
-        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix1);
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixRotationY(t);
-        XMStoreFloat4x4(&m_WorldMatrix1, WorldMatrix);
-
-        // CUBE 2 - Rotate around the origin
-        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix2);
-        XMMATRIX Spin = XMMatrixRotationZ(-t);
-        XMMATRIX Orbit = XMMatrixRotationY(-t * 2.0f);
-        XMMATRIX Translate = XMMatrixTranslation(-4.0f, 0.0f, 0.0f);
-        XMMATRIX Scale = XMMatrixScaling(0.3f, 0.3f, 0.3f);
-        WorldMatrix = Scale * Spin * Translate * Orbit;
-        XMStoreFloat4x4(&m_WorldMatrix2, WorldMatrix);
+        XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
         // Clear the screen and stencil view
         m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
@@ -376,7 +370,7 @@ namespace SDX
 
         // Update variables for FIRST CUBE
         ConstantBuffer constantBuffer1;
-        constantBuffer1.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix1));
+        constantBuffer1.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix));
         constantBuffer1.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
         constantBuffer1.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
         m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer1, 0, 0);
@@ -385,16 +379,6 @@ namespace SDX
         m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-        m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
-
-        // Update variables for SECOND CUBE
-        ConstantBuffer constantBuffer2;
-        constantBuffer2.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix2));
-        constantBuffer2.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
-        constantBuffer2.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
-        m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer2, 0, 0);
-               
-        // Draw vertex buffer to the back buffer
         m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
 
         // Present

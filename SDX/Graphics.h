@@ -14,8 +14,11 @@ namespace SDX
             void LoadShaders();
             void LoadMesh();
             void Update();
+            void SetTopology(D3D_PRIMITIVE_TOPOLOGY topology);
             void Render();
             void Shutdown();
+
+            D3D_PRIMITIVE_TOPOLOGY  g_Topology;
 
         protected:
             UINT*                   m_ScreenWidth;
@@ -46,8 +49,7 @@ namespace SDX
             ID3D11Buffer*           g_pViewConstantBuffer;
             ID3D11Buffer*           g_pProjectionConstantBuffer;
 
-            XMFLOAT4X4              m_WorldMatrix1;
-            XMFLOAT4X4              m_WorldMatrix2;
+            XMFLOAT4X4              m_WorldMatrix;
             XMFLOAT4X4              m_ViewMatrix;
             XMFLOAT4X4              m_ProjectionMatrix;
     };

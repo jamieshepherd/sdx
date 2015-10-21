@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Graphics.h"
 
 namespace SDX
 {
@@ -11,7 +12,7 @@ namespace SDX
             virtual ~Input();
 
             void InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle);
-            void Process();
+            void Process(SDX::Graphics* g_Graphics);
             void Shutdown();
 
         protected:

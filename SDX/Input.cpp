@@ -42,7 +42,7 @@ namespace SDX
     // void Process()
     // Class destructor, run Shutdown() and Exit()
     //--------------------------------------------------------------------------------------
-    void Input::Process()
+    void Input::Process(SDX::Graphics* g_Graphics)
     {
         // Get the current state of the keyboard device
         m_KeyboardDevice->GetDeviceState(sizeof(m_KeyboardKeys), (LPVOID)&m_KeyboardKeys);
@@ -56,10 +56,13 @@ namespace SDX
             // Do something
         }
 
-        // Up arrow KEY UP (key was down, now it's not, therefore key up)
-        if (KEYDOWN(m_PrevKeyboardKeys, DIK_UP) && !KEYDOWN(m_KeyboardKeys, DIK_UP)) {
-            // Do something
-            PostQuitMessage(0);
+        // F1 Key - Change topology
+        if (KEYDOWN(m_PrevKeyboardKeys, DIK_F1) && !KEYDOWN(m_KeyboardKeys, DIK_F1)) {
+            if (g_Graphics->g_Topology == D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP) {
+                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            } else {
+                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+            }
         }
 
         // Copy the current set to previous keys for the next iteration
