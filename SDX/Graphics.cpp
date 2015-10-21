@@ -39,7 +39,6 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow)
     {   
-
         m_ScreenWidth = m_pScreenWidth;
         m_ScreenHeight = m_pScreenHeight;
         m_WindowHandle = m_pWindowHandle;
@@ -60,26 +59,29 @@ namespace SDX
         ID3D11Device* direct3DDevice = nullptr;
         ID3D11DeviceContext* direct3DDeviceContext = nullptr;
 
-        // ERROR CHECK
-        D3D11CreateDevice(NULL, m_DriverType, NULL, createDeviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &direct3DDevice, &m_FeatureLevel, &direct3DDeviceContext);
+        // Create the Direct3D device
+        ThrowIfFailed(D3D11CreateDevice(NULL, m_DriverType, NULL, createDeviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &direct3DDevice, &m_FeatureLevel, &direct3DDeviceContext), L"Could not create D3D device");
+        
 
-        // ERROR CHECK
-        direct3DDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&m_pDirect3DDevice));
+        // Swap over to ID3D11Device1
+        ThrowIfFailed(direct3DDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&m_pDirect3DDevice)), L"Could not swap to ID3D11Device1");
 
-        // ERROR CHECK
-        direct3DDeviceContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&m_pDirect3DDeviceContext));
+        // Swap over to ID3D11DeviceContext1
+        ThrowIfFailed(direct3DDeviceContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&m_pDirect3DDeviceContext)), L"Could not swap to ID3D11DeviceContext1");
 
         ReleaseObject(direct3DDevice);
         ReleaseObject(direct3DDeviceContext);
 
         // MULTISAMPLING
-        //UINT multiSamplingCount = 4;
-        //UINT multiSamplingQualityLevels;
-        //m_pDirect3DDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, multiSamplingCount, &multiSamplingQualityLevels);
-        //if (multiSamplingQualityLevels == 0) {
-        //    //throw GameException("Unsupported multi-sampling quality");
-        //}
+        UINT multiSamplingCount = 4;
+        UINT multiSamplingQualityLevels;
+        ThrowIfFailed(m_pDirect3DDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, multiSamplingCount, &multiSamplingQualityLevels), L"Could not check multisample quality levels");
+        
+        if (multiSamplingQualityLevels == 0) {
+            //throw GameException("Unsupported multi-sampling quality");
+        }
 
+        // Swap chain descriptor
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
         ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
         swapChainDesc.Width = *m_ScreenWidth;
@@ -89,35 +91,33 @@ namespace SDX
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 1;
-        //swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-        IDXGIDevice* dxgiDevice = nullptr;
-
-        // ERROR CHECK
-        m_pDirect3DDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice));
-
-        IDXGIAdapter *dxgiAdapter = nullptr;
-        HRESULT hr;
-
-        // ERROR CHECK
-        hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&dxgiAdapter));
-        // IF FAILED ReleaseObject(dxgiDevice)
-
-        IDXGIFactory2* dxgiFactory = nullptr;
-
-        // ERROR CHECK
-        hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(&dxgiFactory));
-        // IF FAILED ReleaseObject(dxgiDevice);
-        // IF FAILED ReleaseObject(dxgiAdapter);
-
+        // Swap chain descriptor for fullscreen
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullScreenDesc;
         ZeroMemory(&fullScreenDesc, sizeof(fullScreenDesc));
         fullScreenDesc.RefreshRate.Numerator = 60;
         fullScreenDesc.RefreshRate.Denominator = 1;
         fullScreenDesc.Windowed = true;
 
+        // Swap to IDXGI Device
+        IDXGIDevice* dxgiDevice = nullptr;
+        ThrowIfFailed(m_pDirect3DDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice)), L"Could not swap to IDXGI device");
+
         // ERROR CHECK
-        hr = dxgiFactory->CreateSwapChainForHwnd(dxgiDevice, *m_WindowHandle, &swapChainDesc, &fullScreenDesc, nullptr, &m_pSwapChain);
+        IDXGIAdapter *dxgiAdapter = nullptr;
+        ThrowIfFailed(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&dxgiAdapter)), L"Could not get parent DXGI Device");
+        
+        // IF FAILED ReleaseObject(dxgiDevice)
+
+        // Swap to IDXGIFactory 2
+        IDXGIFactory2* dxgiFactory = nullptr;
+        ThrowIfFailed(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(&dxgiFactory)), L"Could not swap to IDXGIFactory2");
+        // IF FAILED ReleaseObject(dxgiDevice);
+        // IF FAILED ReleaseObject(dxgiAdapter);
+
+        // Create the swap chain
+        ThrowIfFailed(dxgiFactory->CreateSwapChainForHwnd(dxgiDevice, *m_WindowHandle, &swapChainDesc, &fullScreenDesc, nullptr, &m_pSwapChain), L"Could not create swap chain for hwnd");
         // IF FAILED ReleaseObject(dxgiDevice);
         // IF FAILED ReleaseObject(dxgiAdapter);
         // IF FAILED ReleaseObject(dxgiFactory);
@@ -126,35 +126,42 @@ namespace SDX
         ReleaseObject(dxgiAdapter);
         ReleaseObject(dxgiFactory);
 
+        // Get buffer
         ID3D11Texture2D* pBackBuffer;
+        ThrowIfFailed(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)), L"Could not get buffer");
 
-        // ERROR CHECK
-        m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
-
-        // ERROR CHECK
-        hr = m_pDirect3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, &m_pRenderTargetView);
+        // Create render target view
+        ThrowIfFailed(m_pDirect3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, &m_pRenderTargetView), L"Could not create render target view");
         // IF FAILED ReleaseObject(backBuffer);
+
         ReleaseObject(pBackBuffer);
 
-        /*D3D11_TEXTURE2D_DESC depthStencilDesc;
+        // Depth stencil texture
+        D3D11_TEXTURE2D_DESC depthStencilDesc;
         ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
         depthStencilDesc.Width = *m_ScreenWidth;
         depthStencilDesc.Height = *m_ScreenHeight;
         depthStencilDesc.MipLevels = 1;
         depthStencilDesc.ArraySize = 1;
         depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+        depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        depthStencilDesc.CPUAccessFlags = 0;
+        depthStencilDesc.MiscFlags = 0;
         depthStencilDesc.SampleDesc.Count = multiSamplingCount;
-        depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;*/
+        depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;
 
-        // ERROR CHECK
         // 2D texture which acts as our depth buffer
-        //m_pDirect3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
+        ThrowIfFailed(m_pDirect3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer), L"Could not create depth stencil texture");
 
         // ERROR CHECK
         // Create the depth stencil view, take in the stencil descriptor
-        //m_pDirect3DDevice->CreateDepthStencilView(m_pDepthStencilBuffer, nullptr, &m_pDepthStencilView);
+        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+        ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+        depthStencilViewDesc.Format = depthStencilDesc.Format;
+        depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        depthStencilViewDesc.Texture2D.MipSlice = 0;
+        ThrowIfFailed(m_pDirect3DDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &depthStencilViewDesc, &m_pDepthStencilView), L"Could not create depth stencil view");
 
         D3D11_VIEWPORT viewport;
         viewport.TopLeftX = 0.0f;
@@ -164,8 +171,7 @@ namespace SDX
         viewport.MinDepth = 0.0f;
         viewport.MaxDepth = 1.0f;
 
-        //m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
-        m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
+        m_pDirect3DDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
         m_pDirect3DDeviceContext->RSSetViewports(1, &viewport);
 
         LoadShaders();
@@ -189,18 +195,11 @@ namespace SDX
         m_pDirect3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShader);
 
         // Describe how the input will be laid out to the buffer
-        
-        D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        };
-        //TRY
-        /*
         D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
-        */
+        
         UINT totalLayoutElements = ARRAYSIZE(inputElementDesc);
 
         m_pDirect3DDevice->CreateInputLayout(inputElementDesc, totalLayoutElements, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pInputLayout);
@@ -226,15 +225,14 @@ namespace SDX
             { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
             { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
             { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-            { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
+            { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
         };
 
         // Buffer description
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;             // Write access for CPU and GPU
-        //bufferDesc.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(vertices);          // Size is the vertex struct times the amount of vertices
-        bufferDesc.ByteWidth = sizeof(VERTEX) * 8;          // Size is the vertex struct times the amount of vertices
+        bufferDesc.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(vertices);          // Size is the vertex struct times the amount of vertices
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;    // Use as a vertex buffer
 
         // Subresource data
@@ -244,7 +242,6 @@ namespace SDX
 
         // Actually create the buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pVertexBuffer);
-
 
         // Set vertex buffer
         UINT stride = sizeof(VERTEX);
@@ -276,8 +273,7 @@ namespace SDX
         // Index buffer
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        //bufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);        // 36 vertices needed for 12 triangles in a triangle list
-        bufferDesc.ByteWidth = sizeof(WORD) * 36;        // 36 vertices needed for 12 triangles in a triangle list
+        bufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);
         bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
         resourceData.pSysMem = indices;
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pIndexBuffer);
@@ -286,10 +282,12 @@ namespace SDX
         m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
         // Set primitive topology
-        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
         // Describe constant buffers
-        // TODO What does constant buffer actually do
+        // TODO What does constant buffer actually do?
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
         bufferDesc.ByteWidth = sizeof(ConstantBuffer);
@@ -302,7 +300,6 @@ namespace SDX
         // World matrix
         XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixIdentity();
-        //WorldMatrix = XMMatrixTranslation(2.0f, 2.0f, 4.0f);
         XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
         // View matrix
@@ -358,7 +355,7 @@ namespace SDX
 
         // Clear the screen and stencil view
         m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
-        //m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
         ConstantBuffer constantBuffer;
         constantBuffer.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix));

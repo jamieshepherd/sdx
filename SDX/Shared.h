@@ -25,4 +25,5 @@ using namespace DirectX;
 
 namespace SDX
 {
+    void ThrowIfFailed(HRESULT hr, LPWSTR message);
 }
