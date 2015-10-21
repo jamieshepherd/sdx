@@ -148,8 +148,10 @@ namespace SDX
         depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         depthStencilDesc.CPUAccessFlags = 0;
         depthStencilDesc.MiscFlags = 0;
-        depthStencilDesc.SampleDesc.Count = multiSamplingCount;
-        depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;
+        //depthStencilDesc.SampleDesc.Count = multiSamplingCount;
+        //depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;
+        depthStencilDesc.SampleDesc.Count = 1;
+        depthStencilDesc.SampleDesc.Quality = 0;
 
         // 2D texture which acts as our depth buffer
         ThrowIfFailed(m_pDirect3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer), L"Could not create depth stencil texture");
