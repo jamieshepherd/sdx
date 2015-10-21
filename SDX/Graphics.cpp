@@ -299,10 +299,17 @@ namespace SDX
         // Create constant buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &g_pConstantBuffer);
 
-        // World matrix
-        XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+        XMMATRIX WorldMatrix;
+
+        // World matrix 1 (CUBE 1)        
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix1);
         WorldMatrix = XMMatrixIdentity();
-        XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
+        XMStoreFloat4x4(&m_WorldMatrix1, WorldMatrix);
+
+        // World matrix 2 (CUBE 2)
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix2);
+        WorldMatrix = XMMatrixIdentity();
+        XMStoreFloat4x4(&m_WorldMatrix2, WorldMatrix);
 
         // View matrix
         XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
@@ -350,27 +357,45 @@ namespace SDX
             t = (timeCur - timeStart) / 1000.0f;
         }
 
-        // Animate the cube
-        XMMATRIX WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+        XMMATRIX WorldMatrix;
+        // CUBE 1 - Rotate around the origin
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix1);
         WorldMatrix = XMMatrixRotationY(t);
-        XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
+        XMStoreFloat4x4(&m_WorldMatrix1, WorldMatrix);
+
+        // CUBE 2 - Rotate around the origin
+        WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix2);
+        XMMATRIX Spin = XMMatrixRotationZ(-t);
+        XMMATRIX Orbit = XMMatrixRotationY(-t * 2.0f);
+        XMMATRIX Translate = XMMatrixTranslation(-4.0f, 0.0f, 0.0f);
+        XMMATRIX Scale = XMMatrixScaling(0.3f, 0.3f, 0.3f);
+        WorldMatrix = Scale * Spin * Translate * Orbit;
+        XMStoreFloat4x4(&m_WorldMatrix2, WorldMatrix);
 
         // Clear the screen and stencil view
         m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
         m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-        ConstantBuffer constantBuffer;
-        constantBuffer.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix));
-        constantBuffer.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
-        constantBuffer.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
-
-        // What does this do?
-        m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer, 0, 0);
+        // Update variables for FIRST CUBE
+        ConstantBuffer constantBuffer1;
+        constantBuffer1.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix1));
+        constantBuffer1.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
+        constantBuffer1.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
+        m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer1, 0, 0);
 
         // Set shaders to be the active shaders
         m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+        m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
+
+        // Update variables for SECOND CUBE
+        ConstantBuffer constantBuffer2;
+        constantBuffer2.World = XMMatrixTranspose(XMLoadFloat4x4(&m_WorldMatrix1));
+        constantBuffer2.View = XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix));
+        constantBuffer2.Projection = XMMatrixTranspose(XMLoadFloat4x4(&m_ProjectionMatrix));
+        m_pDirect3DDeviceContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &constantBuffer2, 0, 0);
+               
 
         // Draw vertex buffer to the back buffer
         m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
