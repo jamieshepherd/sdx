@@ -22,7 +22,6 @@ namespace SDX
     Graphics::Graphics()
     {
         m_DriverType = D3D_DRIVER_TYPE_HARDWARE;
-        g_Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     }
 
     //--------------------------------------------------------------------------------------
@@ -178,7 +177,10 @@ namespace SDX
         m_pDirect3DDeviceContext->RSSetViewports(1, &viewport);
 
         LoadShaders();
+        LoadRasterizers();
         LoadMesh();
+
+        m_pDirect3DDeviceContext->RSSetState(rs_Solid);
     }
 
     //--------------------------------------------------------------------------------------
@@ -210,6 +212,37 @@ namespace SDX
 
         ReleaseObject(pVSBlob);
         ReleaseObject(pPSBlob);
+    }
+
+    void Graphics::LoadRasterizers()
+    {
+        D3D11_RASTERIZER_DESC rsDesc;
+        ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
+        rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+        rsDesc.CullMode = D3D11_CULL_NONE;
+        ThrowIfFailed(m_pDirect3DDevice->CreateRasterizerState(&rsDesc, &rs_WireFrame), L"Couldn't create rasterizer state Wireframe");
+        
+        ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
+        rsDesc.FillMode = D3D11_FILL_SOLID;
+        rsDesc.CullMode = D3D11_CULL_NONE;
+        ThrowIfFailed(m_pDirect3DDevice->CreateRasterizerState(&rsDesc, &rs_Solid), L"Couldn't create rasterizer state Solid");
+    }
+
+    void Graphics::SetRasterizer(int state)
+    {
+        switch (state) {
+            case 0:
+                rs_State = 0;
+                m_pDirect3DDeviceContext->RSSetState(rs_WireFrame);
+                break;
+            case 1:
+                rs_State = 1;
+                m_pDirect3DDeviceContext->RSSetState(rs_Solid);
+                break;
+            default:
+                rs_State = 1;
+                m_pDirect3DDeviceContext->RSSetState(rs_Solid);
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -285,7 +318,7 @@ namespace SDX
         m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
         // Set primitive topology
-        m_pDirect3DDeviceContext->IASetPrimitiveTopology(g_Topology);
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // Describe constant buffers
         // TODO What does constant buffer actually do?
@@ -316,14 +349,6 @@ namespace SDX
     void Graphics::Update(SDX::Camera* g_Camera)
     {
         m_ViewMatrix = g_Camera->GetViewMatrix();
-    }
-
-    void Graphics::SetTopology(D3D_PRIMITIVE_TOPOLOGY topology)
-    {
-        g_Topology = topology;
-        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_pDirect3DDeviceContext->IASetPrimitiveTopology(topology);
-        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
     }
 
     //--------------------------------------------------------------------------------------

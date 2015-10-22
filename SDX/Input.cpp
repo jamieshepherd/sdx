@@ -67,11 +67,11 @@ namespace SDX
 
         // F1 Key - Change topology
         if (KEYDOWN(m_KeyboardKeys, DIK_F1) && !KEYDOWN(m_PrevKeyboardKeys, DIK_F1)) {
-            if (g_Graphics->g_Topology != D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP) {
-                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+            if (g_Graphics->rs_State == 1) {
+                g_Graphics->SetRasterizer(0);
             }
             else {
-                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+                g_Graphics->SetRasterizer(1);
             }
         }
 

@@ -13,13 +13,16 @@ namespace SDX
 
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void LoadShaders();
+            void LoadRasterizers();
             void LoadMesh();
             void Update(SDX::Camera* g_Camera);
-            void SetTopology(D3D_PRIMITIVE_TOPOLOGY topology);
+            void SetRasterizer(int state);
             void Render();
             void Shutdown();
 
-            D3D_PRIMITIVE_TOPOLOGY  g_Topology;
+            int                     rs_State = 1;
+            ID3D11RasterizerState*  rs_Solid;
+            ID3D11RasterizerState*  rs_WireFrame;
 
         protected:
             UINT*                   m_ScreenWidth;
