@@ -12,7 +12,7 @@ namespace SDX
             virtual ~Input();
 
             void InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle);
-            void Process(SDX::Graphics* g_Graphics);
+            void Process(SDX::Graphics* g_Graphics, SDX::Camera* g_Camera);
             void Shutdown();
 
         protected:

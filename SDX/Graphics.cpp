@@ -316,9 +316,7 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::Update(SDX::Camera* g_Camera)
     {
-        XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
-        ViewMatrix = g_Camera->GetViewMatrix();
-        XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
+        m_ViewMatrix = g_Camera->GetViewMatrix();
     }
 
     void Graphics::SetTopology(D3D_PRIMITIVE_TOPOLOGY topology)

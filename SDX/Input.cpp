@@ -42,7 +42,7 @@ namespace SDX
     // void Process()
     // Class destructor, run Shutdown() and Exit()
     //--------------------------------------------------------------------------------------
-    void Input::Process(SDX::Graphics* g_Graphics)
+    void Input::Process(SDX::Graphics* g_Graphics, SDX::Camera* g_Camera)
     {
         // Get the current state of the keyboard device
         m_KeyboardDevice->GetDeviceState(sizeof(m_KeyboardKeys), (LPVOID)&m_KeyboardKeys);
@@ -54,6 +54,11 @@ namespace SDX
         // Down arrow KEY UP (key was down, now it's not, therefore key up)
         if (KEYDOWN(m_PrevKeyboardKeys, DIK_DOWN) && !KEYDOWN(m_KeyboardKeys, DIK_DOWN)) {
             // Do something
+        }
+
+        // Key UP
+        if (KEYDOWN(m_PrevKeyboardKeys, DIK_UP)) {
+            g_Camera->MoveForward();
         }
 
         // F1 Key - Change topology
