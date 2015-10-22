@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Camera.h"
 
 namespace SDX
 {
@@ -13,7 +14,7 @@ namespace SDX
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void LoadShaders();
             void LoadMesh();
-            void Update();
+            void Update(SDX::Camera* g_Camera);
             void SetTopology(D3D_PRIMITIVE_TOPOLOGY topology);
             void Render();
             void Shutdown();

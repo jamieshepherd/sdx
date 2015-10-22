@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "Input.h"
 #include "Graphics.h"
+#include "Camera.h"
 
 using namespace SDX;
 
@@ -13,6 +14,7 @@ namespace SDX {
             Engine(HINSTANCE instance, const std::wstring& className, const std::wstring& windowTitle, int showCommand);
             virtual ~Engine();
 
+            SDX::Camera             g_Camera;
             SDX::Graphics           g_Graphics;
             SDX::Input              g_Input;
 

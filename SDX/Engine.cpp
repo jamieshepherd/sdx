@@ -10,9 +10,7 @@ Engine::Engine(HINSTANCE instance, const std::wstring& className, const std::wst
     m_ScreenWidth = 1024;
     m_ScreenHeight = 768;
 
-    //g_Graphics = new SDX::Graphics();
-    //g_Input    = new SDX::Input(&m_Instance, &m_WindowHandle);
-    
+    g_Camera.SetPositions(XMFLOAT3(3.0f, 3.0f, -12.0f), XMFLOAT3(0.0f, 0.0f, 0.0f));    
 }
 
 //--------------------------------------------------------------------------------------
@@ -88,6 +86,7 @@ void Engine::InitWindow()
 void Engine::Update()
 {
     g_Input.Process(&g_Graphics);
+    g_Graphics.Update(&g_Camera);
     g_Graphics.Render();
 }
 

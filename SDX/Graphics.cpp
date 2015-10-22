@@ -305,14 +305,6 @@ namespace SDX
         WorldMatrix = XMMatrixIdentity();
         XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 
-        // View matrix
-        XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
-        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
-        XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        ViewMatrix = XMMatrixLookAtLH(Eye,At,Up);
-        XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
-
         XMMATRIX ProjectionMatrix = XMLoadFloat4x4(&m_ProjectionMatrix);
         ProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.01f, 100.0f);
         XMStoreFloat4x4(&m_ProjectionMatrix, ProjectionMatrix);
@@ -322,9 +314,11 @@ namespace SDX
     // void Render()
     // Make any updates
     //--------------------------------------------------------------------------------------
-    void Graphics::Update()
+    void Graphics::Update(SDX::Camera* g_Camera)
     {
-        
+        XMMATRIX ViewMatrix = XMLoadFloat4x4(&m_ViewMatrix);
+        ViewMatrix = g_Camera->GetViewMatrix();
+        XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
     }
 
     void Graphics::SetTopology(D3D_PRIMITIVE_TOPOLOGY topology)
@@ -341,8 +335,6 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::Render()
     {
-        Update();
-
         // Update our time
         static float t = 0.0f;
         if (m_DriverType == D3D_DRIVER_TYPE_REFERENCE)
