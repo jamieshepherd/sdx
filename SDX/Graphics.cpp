@@ -22,6 +22,7 @@ namespace SDX
     Graphics::Graphics()
     {
         m_DriverType = D3D_DRIVER_TYPE_HARDWARE;
+        g_Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     }
 
     //--------------------------------------------------------------------------------------
@@ -284,9 +285,7 @@ namespace SDX
         m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
         // Set primitive topology
-        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-        //m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(g_Topology);
 
         // Describe constant buffers
         // TODO What does constant buffer actually do?

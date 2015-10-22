@@ -4,12 +4,10 @@ namespace SDX
 {
     Input::Input()
     {
-
     }
 
     Input::~Input()
     {
-
     }
 
     void Input::InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle)
@@ -17,24 +15,20 @@ namespace SDX
         ZeroMemory(m_KeyboardKeys, sizeof(m_KeyboardKeys));
         ZeroMemory(m_PrevKeyboardKeys, sizeof(m_PrevKeyboardKeys));
 
-        // ERROR CHECK
-        DirectInput8Create(*m_Instance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, 0);
+        // Initialise DirectInput8
+        ThrowIfFailed(DirectInput8Create(*m_Instance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, 0), L"Couldn't initialise DirectInput");
 
-        // ERROR CHECK
-        m_DirectInput->CreateDevice(GUID_SysKeyboard, &m_KeyboardDevice, 0);
+        // Create a keyboard device
+        ThrowIfFailed(m_DirectInput->CreateDevice(GUID_SysKeyboard, &m_KeyboardDevice, 0), L"Couldn't create Direct Input device");
 
-
-        // ERROR CHECK
         // Tell DirectInput what data format to read from the device
-        m_KeyboardDevice->SetDataFormat(&c_dfDIKeyboard);
+        ThrowIfFailed(m_KeyboardDevice->SetDataFormat(&c_dfDIKeyboard), L"Couldn't set data format to keyboard");
 
-        // ERROR CHECK
         // Tell the system how the device will work with the system
-        m_KeyboardDevice->SetCooperativeLevel(*m_WindowHandle, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+        ThrowIfFailed(m_KeyboardDevice->SetCooperativeLevel(*m_WindowHandle, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE), L"Couldn't set cooperative level");
 
-        // ERROR CHECK
         // Acquire the device from the OS
-        m_KeyboardDevice->Acquire();
+        ThrowIfFailed(m_KeyboardDevice->Acquire(), L"Couldn't acquire the keyboard from the OS");
 
     }
 
@@ -51,22 +45,33 @@ namespace SDX
             PostQuitMessage(0);
         }
 
-        // Down arrow KEY UP (key was down, now it's not, therefore key up)
-        if (KEYDOWN(m_PrevKeyboardKeys, DIK_DOWN) && !KEYDOWN(m_KeyboardKeys, DIK_DOWN)) {
-            // Do something
-        }
-
         // Key UP
-        if (KEYDOWN(m_PrevKeyboardKeys, DIK_UP)) {
+        if (KEYDOWN(m_KeyboardKeys, DIK_UP)) {
             g_Camera->MoveForward();
         }
 
+        // Key DOWN
+        if (KEYDOWN(m_KeyboardKeys, DIK_DOWN)) {
+            g_Camera->MoveBackward();
+        }
+
+        // Key LEFT
+        if (KEYDOWN(m_KeyboardKeys, DIK_LEFT)) {
+            g_Camera->MoveLeft();
+        }
+
+        // Key RIGHT
+        if (KEYDOWN(m_KeyboardKeys, DIK_RIGHT)) {
+            g_Camera->MoveRight();
+        }
+
         // F1 Key - Change topology
-        if (KEYDOWN(m_PrevKeyboardKeys, DIK_F1) && !KEYDOWN(m_KeyboardKeys, DIK_F1)) {
-            if (g_Graphics->g_Topology == D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP) {
-                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            } else {
+        if (KEYDOWN(m_KeyboardKeys, DIK_F1) && !KEYDOWN(m_PrevKeyboardKeys, DIK_F1)) {
+            if (g_Graphics->g_Topology != D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP) {
                 g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+            }
+            else {
+                g_Graphics->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             }
         }
 
