@@ -1,11 +1,5 @@
 #include "Graphics.h"
 
-struct VERTEX
-{
-    XMFLOAT3 pos;
-    XMFLOAT4 color;
-};
-
 struct ConstantBuffer
 {
     XMMATRIX World;
@@ -180,6 +174,8 @@ namespace SDX
         LoadRasterizers();
         LoadMesh();
 
+        LoadFont();
+
         m_pDirect3DDeviceContext->RSSetState(rs_Solid);
     }
 
@@ -251,6 +247,13 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::LoadMesh()
     {
+        Model objModel;
+
+        // objModel.LoadModel("Tiger.obj");
+        // m_TotalVertices  += sizeof(vertices);
+        // VERTEX vertices[] = objModel.GetVertices();
+        // WORD   indices[]  = objModel.GetIndices();
+
         // Define some vertices
         VERTEX vertices[] =
         {
@@ -351,6 +354,16 @@ namespace SDX
         m_ViewMatrix = g_Camera->GetViewMatrix();
     }
 
+    void Graphics::LoadFont()
+    {
+        
+    }
+
+    void Graphics::DrawString(char* text, float positionX, float positionY)
+    {
+        
+    }
+
     //--------------------------------------------------------------------------------------
     // void Render()
     // Render anything available to the screen
@@ -373,7 +386,7 @@ namespace SDX
         }
 
         XMMATRIX WorldMatrix;
-        // CUBE 1 - Rotate around the origin
+        // CUBE - Rotate around the origin
         WorldMatrix = XMLoadFloat4x4(&m_WorldMatrix);
         WorldMatrix = XMMatrixRotationY(t);
         XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
@@ -395,6 +408,8 @@ namespace SDX
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
         m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
 
+        //DrawString("HELLO WORLD", -0.2f, 0.0f);
+
         // Present
         m_pSwapChain->Present(0, 0);
     }
@@ -405,6 +420,8 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::Shutdown()
     {
+        ReleaseObject(rs_WireFrame);
+        ReleaseObject(rs_Solid);
         ReleaseObject(g_pVertexBuffer);
         ReleaseObject(g_pIndexBuffer);
         ReleaseObject(m_pInputLayout);

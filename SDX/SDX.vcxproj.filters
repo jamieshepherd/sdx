@@ -39,6 +39,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -68,6 +71,9 @@
   <ItemGroup>
     <None Include="VertexShader.hlsl">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Model.h">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
 </Project>

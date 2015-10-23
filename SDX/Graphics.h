@@ -2,6 +2,7 @@
 
 #include "Shared.h"
 #include "Camera.h"
+#include "Model.h"
 
 namespace SDX
 {
@@ -17,6 +18,8 @@ namespace SDX
             void LoadMesh();
             void Update(SDX::Camera* g_Camera);
             void SetRasterizer(int state);
+            void LoadFont();
+            void DrawString(char* text, float positionX, float positionY);
             void Render();
             void Shutdown();
 

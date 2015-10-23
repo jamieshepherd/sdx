@@ -23,6 +23,12 @@
 
 using namespace DirectX;
 
+struct VERTEX
+{
+    XMFLOAT3 pos;
+    XMFLOAT4 color;
+};
+
 namespace SDX
 {
     void ThrowIfFailed(HRESULT hr, LPWSTR message);
