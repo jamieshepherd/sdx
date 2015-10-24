@@ -15,54 +15,80 @@ namespace SDX
     bool Model::LoadModel(char* filename)
     {
         std::ifstream fileStream;
-        wchar_t checkChar;
+        char streamChar;
 
-        fileStream.open(filename, std::ifstream::in);
-        while (fileStream.good()) {
+        fileStream.open(filename);
+        while (!fileStream.eof()) {
             // READ LINES
-            checkChar = fileStream.get();
+            fileStream.get(streamChar);
             // The line is a comment
-            if (checkChar == '#') {
-                while (checkChar != '\n') {
-                    checkChar = fileStream.get();
+            if (streamChar == '#') {
+                while (streamChar != '\n') {
+                    fileStream.get(streamChar);
                 }
             }
             // Could be 'v' or 'vt' or 'vn'
-            else if (checkChar == 'v') {
-                checkChar = fileStream.get();
+            else if (streamChar == 'v') {
+                fileStream.get(streamChar);
                 // Vertex position
-                if (checkChar == ' ') {
+                if (streamChar == ' ') {
                     float vx, vy, vz;
-                    fileStream >> vx >> vy >> vz;
-                    vertexPosition.push_back(XMFLOAT3(vx, vy, vz));
+                    fileStream >> std::skipws >> vx >> vy >> vz;
+                    VERTEX newVertex = { XMFLOAT3(vx, vy, vz), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) };
+                    vertexPositions.push_back(newVertex);
                 }
                 // Vertex texture coordinates
-                else if (checkChar == 't') {
+                else if (streamChar == 't') {
                     float vtcu, vtcv;
                     fileStream >> vtcu >> vtcv;
                     vertexTextureCoord.push_back(XMFLOAT2(vtcu, vtcv));
                 }
                 // Vertex normal
-                else if (checkChar == 'n') {
+                else if (streamChar == 'n') {
                     float vnx, vny, vnz;
                     fileStream >> vnx >> vny >> vnz;
                     vertexNormal.push_back(XMFLOAT3(vnx, vny, vnz));
                 }
             }
             // Group
-            else if (checkChar == 'g') {
+            else if (streamChar == 'g') {
 
             }
             // Index or face
-            else if (checkChar == 'f') {
+            else if (streamChar == 'f') {
+                UINT value = 0;
+                UINT face = 0;
+                std::wstring VertexDefinition;
+                triangleCount = 0;
 
+                fileStream.ignore(); // Get rid of the first space
+                //fileStream.get(streamChar); // Take the first 
+
+                // As long as we're on the same line
+                while (streamChar != '\n') {
+
+                    // TAKE THE FIRST CHAR, THIS IS AN INDEX
+                    fileStream >> std::skipws >> value;
+                    fileStream.get(streamChar);
+
+                    while (streamChar != ' ') {
+                        fileStream.get(streamChar);
+                        if (streamChar == '\n') {
+                            break;
+                        }
+                    }
+
+                    indices.push_back((UINT)value);
+                }
+
+                triangleCount++;
             }
             // Material library filename
-            else if (checkChar == 'm') {
+            else if (streamChar == 'm') {
 
             }
             // Use material
-            else if (checkChar == 'u') {
+            else if (streamChar == 'u') {
 
             }
         }
@@ -71,16 +97,22 @@ namespace SDX
 
     std::vector<VERTEX> Model::GetVertices()
     {
-        return{};
+        return vertexPositions;
     }
 
-    std::vector<WORD> Model::GetIndices()
+    std::vector<UINT> Model::GetIndices()
     {
-        return {};
+        return indices;
     }
 
     void Model::Release()
     {
 
+    }
+
+    float rand_color()
+    {
+        float randomColor = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        return randomColor;
     }
 }

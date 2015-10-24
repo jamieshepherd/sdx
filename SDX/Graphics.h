@@ -59,5 +59,7 @@ namespace SDX
             XMFLOAT4X4              m_WorldMatrix;
             XMFLOAT4X4              m_ViewMatrix;
             XMFLOAT4X4              m_ProjectionMatrix;
+
+            UINT                    m_IndicesCount;
     };
 }

@@ -13,7 +13,7 @@ namespace SDX
 
             bool LoadModel(char* filename);
             std::vector<VERTEX> GetVertices();
-            std::vector<WORD>   GetIndices();
+            std::vector<UINT>   GetIndices();
             void Release();
 
         protected:
@@ -27,8 +27,9 @@ namespace SDX
             std::vector<int>      meshSubsetIndexStart;
             std::vector<int>      meshSubsetTexture;
 
-            std::vector<WORD>     indices;
-            std::vector<XMFLOAT3> vertexPosition;
+            std::vector<UINT>     indices;
+            int                   triangleCount;
+            std::vector<VERTEX>   vertexPositions;
             std::vector<XMFLOAT3> vertexNormal;
             std::vector<XMFLOAT2> vertexTextureCoord;
     };

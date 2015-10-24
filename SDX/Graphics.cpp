@@ -249,13 +249,17 @@ namespace SDX
     {
         Model objModel;
 
-        // objModel.LoadModel("Tiger.obj");
+        objModel.LoadModel("Teapot.obj");
         // m_TotalVertices  += sizeof(vertices);
         // VERTEX vertices[] = objModel.GetVertices();
         // WORD   indices[]  = objModel.GetIndices();
 
+        std::vector<VERTEX>   vertices = objModel.GetVertices();
+        std::vector<UINT>     indices = objModel.GetIndices();
+        m_IndicesCount = indices.size();
+
         // Define some vertices
-        VERTEX vertices[] =
+        /*VERTEX vertices[] =
         {
             { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
             { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
@@ -265,19 +269,19 @@ namespace SDX
             { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
             { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
             { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-        };
+        };*/
 
         // Buffer description
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;             // Write access for CPU and GPU
-        bufferDesc.ByteWidth = sizeof(VERTEX) * ARRAYSIZE(vertices);          // Size is the vertex struct times the amount of vertices
+        bufferDesc.ByteWidth = sizeof(VERTEX) * vertices.size();          // Size is the vertex struct times the amount of vertices
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;    // Use as a vertex buffer
 
         // Subresource data
         D3D11_SUBRESOURCE_DATA resourceData;
         ZeroMemory(&resourceData, sizeof(resourceData));
-        resourceData.pSysMem = vertices;
+        resourceData.pSysMem = &vertices[0];
 
         // Actually create the buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pVertexBuffer);
@@ -288,7 +292,7 @@ namespace SDX
         m_pDirect3DDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
         // Create an index buffer
-        WORD indices[] =
+        /*UINT indices[] =
         {
             3, 1, 0,
             2, 1, 3,
@@ -306,19 +310,20 @@ namespace SDX
             3, 7, 2,
 
             6, 4, 5,
-            7, 4, 6,
-        };
+            7, 4, 6
+        };*/
 
         // Index buffer
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        bufferDesc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);
+        bufferDesc.ByteWidth = sizeof(UINT) * indices.size();
         bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        resourceData.pSysMem = indices;
+       
+        resourceData.pSysMem = &indices[0];
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pIndexBuffer);
 
         // Set index buffer
-        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDirect3DDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
         // Set primitive topology
         m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -406,7 +411,7 @@ namespace SDX
         m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-        m_pDirect3DDeviceContext->DrawIndexed(36, 0, 0);
+        m_pDirect3DDeviceContext->DrawIndexed(m_IndicesCount, 0, 0);
 
         //DrawString("HELLO WORLD", -0.2f, 0.0f);
 
