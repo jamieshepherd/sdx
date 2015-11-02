@@ -27,8 +27,8 @@ using namespace DirectX;
 struct VERTEX
 {
     XMFLOAT3 pos;
-    XMFLOAT4 color;
-    //XMFLOAT2 tex;
+    //XMFLOAT4 color;
+    XMFLOAT2 tex;
 };
 
 struct cbPerObject

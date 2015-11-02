@@ -28,10 +28,10 @@ namespace SDX
 
     XMFLOAT4X4 Camera::GetViewMatrix()
     {
-        XMVECTOR EyePosition = XMLoadFloat3(&m_Position);
-        XMVECTOR FocusTarget = XMLoadFloat3(&m_Target);
-        XMVECTOR Up = XMLoadFloat3(&m_Up);
-        XMMATRIX ViewMatrix = XMMatrixLookAtLH(EyePosition, FocusTarget, Up);
+        XMVECTOR CamPosition = XMLoadFloat3(&m_Position);
+        XMVECTOR CamTarget = XMLoadFloat3(&m_Target);
+        XMVECTOR CamUp = XMLoadFloat3(&m_Up);
+        XMMATRIX ViewMatrix = XMMatrixLookAtLH(CamPosition, CamTarget, CamUp);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
         
         return m_ViewMatrix;
@@ -39,12 +39,12 @@ namespace SDX
 
     void Camera::MoveForward()
     {
-        m_Position.x += 0.1f;
+        m_Position.x += 0.01f;
     }
 
     void Camera::MoveBackward()
     {
-        m_Position.x -= 0.1f;
+        m_Position.x -= 0.01f;
     }
 
     void Camera::MoveLeft()

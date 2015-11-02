@@ -13,7 +13,6 @@ namespace SDX
         // Set the World matrix
         XMMATRIX t_World;
         t_World = XMLoadFloat4x4(&m_World);
-        t_World = XMMatrixIdentity();
         XMStoreFloat4x4(&m_World, t_World);
 
         g_pDevice = pDevice;
@@ -25,7 +24,7 @@ namespace SDX
 
     }
 
-    bool Model::LoadModel(char* filename, bool leftHanded, bool isTextured)
+    bool Model::LoadModel(char* filename, wchar_t* texturename, bool leftHanded, bool isTextured)
     {
         std::ifstream fileStream;
         char streamChar;
@@ -49,9 +48,9 @@ namespace SDX
                     fileStream >> std::skipws >> vx >> vy >> vz;
                     
                     if (leftHanded) {
-                        vertexPositions.push_back(XMFLOAT3(vx, vy, vz));
+                        m_VertexPositions.push_back(XMFLOAT3(vx, vy, vz));
                     } else {
-                        vertexPositions.push_back(XMFLOAT3(vx, vy, vz*-1.0f));
+                        m_VertexPositions.push_back(XMFLOAT3(vx, vy, vz*-1.0f));
                     }
                 }
                 // Vertex texture coordinates
@@ -60,9 +59,9 @@ namespace SDX
                     fileStream >> vtcu >> vtcv;
 
                     if (leftHanded) {
-                        vertexTextureCoords.push_back(XMFLOAT2(vtcu, vtcv));
+                        m_VertexTextureCoords.push_back(XMFLOAT2(vtcu, vtcv));
                     } else {
-                        vertexTextureCoords.push_back(XMFLOAT2(vtcu, 1.0f - vtcv));
+                        m_VertexTextureCoords.push_back(XMFLOAT2(vtcu, 1.0f - vtcv));
                     }
                     
                 }
@@ -70,7 +69,7 @@ namespace SDX
                 else if (streamChar == 'n') {
                     float vnx, vny, vnz;
                     fileStream >> vnx >> vny >> vnz;
-                    vertexNormals.push_back(XMFLOAT3(vnx, vny, vnz));
+                    m_VertexNormals.push_back(XMFLOAT3(vnx, vny, vnz));
                 }
             }
             // Group
@@ -81,7 +80,7 @@ namespace SDX
             else if (streamChar == 'f') {
                 WORD value = 0;
                 std::wstring VertexDefinition;
-                triangleCount = 0;
+                m_TriangleCount = 0;
 
                 fileStream.ignore(); // Get rid of the first space
 
@@ -102,7 +101,7 @@ namespace SDX
                     m_Indices.push_back((UINT)value - 1);
                 }
 
-                triangleCount++;
+                m_TriangleCount++;
             }
             // Material library filename
             else if (streamChar == 'm') {
@@ -115,18 +114,22 @@ namespace SDX
         }
 
         // Load vertices
-        for (UINT i = 0; i < vertexPositions.size(); i++) {
+        for (UINT i = 0; i < m_VertexPositions.size(); i++) {
 
             VERTEX newVertex;
             if (isTextured) {
-                //newVertex = { vertexPositions[i], vertexTextureCoords[i] };
-                newVertex = { vertexPositions[i], XMFLOAT4(randColor(), randColor(), randColor(), 1.0f) };
+                newVertex = { m_VertexPositions[i], m_VertexTextureCoords[i] };
+                //newVertex = { m_VertexPositions[i], XMFLOAT4(randColor(), randColor(), randColor(), 1.0f) };
             } else {
-                //newVertex = { vertexPositions[i], XMFLOAT2(0.0f, 0.0f) };
-                newVertex = { vertexPositions[i], XMFLOAT4(randColor(), randColor(), randColor(), 1.0f) };
+                newVertex = { m_VertexPositions[i], XMFLOAT2(0.0f, 0.0f) };
+                //newVertex = { m_VertexPositions[i], XMFLOAT4(randColor(), randColor(), randColor(), 1.0f) };
             }
             
             m_Vertices.push_back(newVertex);
+        }
+
+        if (isTextured) {
+            LoadTexture(texturename);
         }
 
         LoadBuffers();
@@ -134,11 +137,29 @@ namespace SDX
         return true;
     }
 
+    bool Model::LoadTexture(wchar_t* filename)
+    {
+        // Load texture file
+        ThrowIfFailed(CreateWICTextureFromFile(g_pDevice, g_pDeviceContext, filename, nullptr, &m_MeshTexture), L"Couldn't load texture from file");
+
+        // Create a texture sampler
+        D3D11_SAMPLER_DESC samplerDesc;
+        ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+        ThrowIfFailed(g_pDevice->CreateSamplerState(&samplerDesc, &m_MeshTextureSamplerState), L"Couldn't create sampler state");
+
+        g_pDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
+        g_pDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
+
+        return true;
+    }
+
     bool Model::LoadBuffers()
     {
-        UINT stride = sizeof(VERTEX);
-        UINT offset = 0;
-
         // Load vertex buffer
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
@@ -152,8 +173,6 @@ namespace SDX
 
         g_pDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pVertexBuffer);
 
-        // Set vertex buffer to this one
-        g_pDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
         // Load index buffer
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
@@ -164,27 +183,22 @@ namespace SDX
         resourceData.pSysMem = &m_Indices[0];
         g_pDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pIndexBuffer);
 
-        // Set index buffer to this one
-        g_pDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
         return true;
     }
 
     void Model::DrawIndexed()
     {
+        UINT stride = sizeof(VERTEX);
+        UINT offset = 0;
+
+        // Set vertex buffer to this one
+        g_pDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+        // Set index buffer to this one
+        g_pDeviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
         g_pDeviceContext->DrawIndexed(m_Indices.size(), 0, 0);
     }
-
-    std::vector<VERTEX> Model::GetVertices()
-    {
-        return m_Vertices;
-    }
-
-    std::vector<WORD> Model::GetIndices()
-    {
-        return m_Indices;
-    }
-
+    
     XMMATRIX Model::GetWorld()
     {
         XMMATRIX t_World;

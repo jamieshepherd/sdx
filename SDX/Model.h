@@ -1,8 +1,9 @@
 #pragma once
 
-#include "shared.h"
 #include <istream>
 #include <fstream>
+#include "shared.h"
+#include "WICTextureLoader.h"
 
 namespace SDX
 {
@@ -12,39 +13,34 @@ namespace SDX
             Model(ID3D11Device1* pDevice, ID3D11DeviceContext1* pDeviceContext);
             virtual ~Model();
 
-            bool                  LoadModel(char* filename, bool leftHanded, bool isTextured);
-            bool                  LoadBuffers();
-            void                  DrawIndexed();
-            std::vector<VERTEX>   GetVertices();
-            std::vector<WORD>     GetIndices();
-            XMMATRIX              GetWorld();
-            void                  Release();
+            bool                      LoadModel(char* filename, wchar_t* texturename, bool leftHanded, bool isTextured);
+            bool                      LoadTexture(wchar_t* filename);
+            bool                      LoadBuffers();
+            void                      DrawIndexed();
+            XMMATRIX                  GetWorld();
+            void                      Release();
 
-            ID3D11Device1*        g_pDevice;
-            ID3D11DeviceContext1* g_pDeviceContext;
-
-            ID3D11Buffer*         g_pVertexBuffer;
-            ID3D11Buffer*         g_pIndexBuffer;
+            ID3D11Device1*            g_pDevice;
+            ID3D11DeviceContext1*     g_pDeviceContext;
+            ID3D11Buffer*             g_pVertexBuffer;
+            ID3D11Buffer*             g_pIndexBuffer;
 
         protected:
-            int                   m_TotalVertices;
+            ID3D11BlendState*         m_Transparency;
+            ID3D11Buffer*             m_MeshVertexBuffer;
+            ID3D11Buffer*             m_MeshIndexBuffer;
 
-            ID3D11BlendState*     m_Transparency;
-            ID3D11Buffer*         m_MeshVertexBuffer;
-            ID3D11Buffer*         m_MeshIndexBuffer;
+            XMFLOAT4X4                m_World;
 
-            XMFLOAT4X4            m_World;
+            ID3D11ShaderResourceView* m_MeshTexture;
+            ID3D11SamplerState*       m_MeshTextureSamplerState;
 
-            int                   meshSubsets = 0;
-            std::vector<int>      meshSubsetIndexStart;
-            std::vector<int>      meshSubsetTexture;
+            std::vector<WORD>         m_Indices;
+            std::vector<VERTEX>       m_Vertices;
+            int                       m_TriangleCount;  
 
-            std::vector<WORD>     m_Indices;
-            std::vector<VERTEX>   m_Vertices;
-            int                   triangleCount;  
-
-            std::vector<XMFLOAT3> vertexPositions;
-            std::vector<XMFLOAT3> vertexNormals;
-            std::vector<XMFLOAT2> vertexTextureCoords;
+            std::vector<XMFLOAT3>     m_VertexPositions;
+            std::vector<XMFLOAT3>     m_VertexNormals;
+            std::vector<XMFLOAT2>     m_VertexTextureCoords;
     };
 }

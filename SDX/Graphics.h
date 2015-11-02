@@ -3,7 +3,6 @@
 #include "Shared.h"
 #include "Camera.h"
 #include "Model.h"
-#include "WICTextureLoader.h"
 
 namespace SDX
 {
@@ -21,7 +20,7 @@ namespace SDX
             void SetRasterizer(int state);
             void LoadFont();
             void DrawString(char* text, float positionX, float positionY);
-            XMMATRIX GetWVP();
+            XMMATRIX GetWVP(XMFLOAT4X4 world);
             void Render();
             void Shutdown();
 
@@ -30,6 +29,11 @@ namespace SDX
             ID3D11RasterizerState*  rs_WireFrame;
 
             Model*  g_Model1;
+            Model*  g_Model2;
+
+            XMMATRIX                g_Rotation;
+            XMMATRIX                g_Scale;
+            XMMATRIX                g_Translation;
 
         protected:
             UINT*                     m_ScreenWidth;
@@ -62,14 +66,16 @@ namespace SDX
             ID3D11Buffer*             cbPerObjectBuffer;
 
             XMFLOAT4X4                m_WVP;
-            XMFLOAT4X4                m_World;
+            //XMFLOAT4X4                m_World;
+
+            XMFLOAT4X4                m_Object1World;
+            XMFLOAT4X4                m_Object2World;
+
             XMFLOAT4X4                m_CamView;
             XMFLOAT4X4                m_CamProjection;
 
             XMVECTOR                  m_CamPosition;
             XMVECTOR                  m_CamTarget;
             XMVECTOR                  m_CamUp;
-
-            UINT                      m_IndicesCount;
     };
 }

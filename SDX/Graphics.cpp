@@ -202,8 +202,8 @@ namespace SDX
         // Describe how the input will be laid out to the buffer
         D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            //{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+            //{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
         };
         
         UINT totalLayoutElements = ARRAYSIZE(inputElementDesc);
@@ -252,29 +252,14 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::LoadMesh()
     {
+        // Example models: Cube, Tiger(Textured), Teapot, Teddy
         g_Model1 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Model1->LoadModel("Models/Cube.obj", true, false);
+        g_Model1->LoadModel("Models/Teddy.obj", L"Models/Tiger.jpg", false, false);
 
-        //objModel.LoadModel("Models/Cube.obj", true, false);
-        //objModel.LoadModel("Models/Teapot.obj", true, false);
-        //objModel.LoadModel("Models/Tiger.obj", true, true);
-
-        // Load texture file
-        //std::wstring textureName = L"Models/Tiger.jpg";
-        //ThrowIfFailed(CreateWICTextureFromFile(m_pDirect3DDevice, m_pDirect3DDeviceContext, textureName.c_str(), nullptr, &m_MeshTexture), L"Couldn't load texture from file");
-
-        // Create a texture sampler
-        /*D3D11_SAMPLER_DESC samplerDesc;
-        ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-        ThrowIfFailed(m_pDirect3DDevice->CreateSamplerState(&samplerDesc, &m_MeshTextureSamplerState), L"Couldn't create sampler state");*/
+        g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        g_Model2->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
 
         // Describe constant buffers
-        // TODO What does constant buffer actually do?
         D3D11_BUFFER_DESC bufferDesc;
         ZeroMemory(&bufferDesc, sizeof(bufferDesc));
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -285,12 +270,10 @@ namespace SDX
         // Create constant buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &cbPerObjectBuffer);
 
-        // We get cam view from g_Camera in Update()
-
         // Set primitive topology
         m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        // Set the Projection matrix
+        // Set the Camera Projection matrix
         XMMATRIX t_CamProjection;
         t_CamProjection = XMMatrixPerspectiveFovLH(XM_PIDIV2, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 1.0f, 1000.0f);
         XMStoreFloat4x4(&m_CamProjection, t_CamProjection);
@@ -315,11 +298,11 @@ namespace SDX
         
     }
 
-    XMMATRIX Graphics::GetWVP()
+    XMMATRIX Graphics::GetWVP(XMFLOAT4X4 world)
     {
         XMMATRIX t_WVP, t_World, t_View, t_Projection;
         t_WVP = XMLoadFloat4x4(&m_WVP);
-        t_World = XMLoadFloat4x4(&m_World);
+        t_World = XMLoadFloat4x4(&world);
         t_View = XMLoadFloat4x4(&m_CamView);
         t_Projection = XMLoadFloat4x4(&m_CamProjection);
         t_WVP = t_World * t_View * t_Projection;
@@ -334,45 +317,57 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::Render()
     {
-        // Update our time
-        static float t = 0.0f;
-        if (m_DriverType == D3D_DRIVER_TYPE_REFERENCE)
-        {
-            t += (float)XM_PI * 0.0125f;
-        }
-        else
-        {
-            static ULONGLONG timeStart = 0;
-            ULONGLONG timeCur = GetTickCount64();
-            if (timeStart == 0)
-                timeStart = timeCur;
-            t = (timeCur - timeStart) / 1000.0f;
-        }
-
-        // CUBE - Rotate around the origin
-        XMMATRIX t_World;
-        t_World = XMLoadFloat4x4(&m_World);
-        t_World = XMMatrixRotationY(t);
-        XMStoreFloat4x4(&m_World, t_World);
-
-        cbPerObject cbPerObj;
-        cbPerObj.WVP = GetWVP();
-
         // Clear the screen and stencil view
         m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
         m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-        // Update variables for FIRST CUBE
-        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cbPerObj, 0, 0);
+        // Update our time
+        static float t = 0.0f;
+        static ULONGLONG timeStart = 0;
+        ULONGLONG timeCur = GetTickCount64();
+        if (timeStart == 0)
+            timeStart = timeCur;
+        t = (timeCur - timeStart) / 1000.0f;
 
-        // Set shaders to be the active shaders
+        // Set the constant buffer
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-        //m_pDirect3DDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
-        //m_pDirect3DDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
+
+        // ---
+        // Object #1 (Spinning)
+        // ---
+        XMMATRIX t_World;
+        XMMATRIX t_Spin = XMMatrixRotationY(t);
+        XMMATRIX t_Scale = XMMatrixScaling(0.004f, 0.004f, 0.004f); // Original file is pretty large
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_Scale * t_Spin;
+        XMStoreFloat4x4(&m_Object1World, t_World);
+
+        cbPerObject cb1;
+        cb1.WVP = GetWVP(m_Object1World);
+
+        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb1, 0, 0);
 
         g_Model1->DrawIndexed();
 
-        // Present
+        // ---
+        // Object #2 (Rotating around axis)
+        // ---
+        XMMATRIX mSpin = XMMatrixRotationZ(-t);
+        XMMATRIX mOrbit = XMMatrixRotationY(-t * 2.0f);
+        XMMATRIX mTranslate = XMMatrixTranslation(-4.0f, 0.0f, 0.0f);
+        XMMATRIX mScale = XMMatrixScaling(0.001f, 0.001f, 0.001f);
+        t_World = XMLoadFloat4x4(&m_Object2World);
+        t_World = mScale * mSpin * mTranslate * mOrbit;
+        XMStoreFloat4x4(&m_Object2World, t_World);
+
+        cbPerObject cb2;
+        cb2.WVP = GetWVP(m_Object2World);
+
+        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb2, 0, 0);
+
+        g_Model2->DrawIndexed();
+
+        // Present to the screen this frame
         m_pSwapChain->Present(0, 0);
     }
 
