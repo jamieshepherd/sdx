@@ -9,6 +9,7 @@
 #include <stack>
 #include <windows.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <d3d11_1.h>
 #include <DirectXMath.h>
@@ -27,6 +28,12 @@ struct VERTEX
 {
     XMFLOAT3 pos;
     XMFLOAT4 color;
+    //XMFLOAT2 tex;
+};
+
+struct cbPerObject
+{
+    XMMATRIX  WVP;
 };
 
 namespace SDX
