@@ -1,12 +1,5 @@
 #include "Graphics.h"
 
-//struct ConstantBuffer
-//{
-//    XMMATRIX World;
-//    XMMATRIX View;
-//    XMMATRIX Projection;
-//};
-
 namespace SDX
 {
     //--------------------------------------------------------------------------------------
@@ -171,6 +164,8 @@ namespace SDX
         m_pDirect3DDeviceContext->RSSetViewports(1, &viewport);
 
         LoadShaders();
+        LoadGrid();
+        LoadSkybox();
         LoadRasterizers();
         LoadMesh();
 
@@ -196,8 +191,7 @@ namespace SDX
         m_pDirect3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShader);
 
         // Set active shaders
-        m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-        m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+        
 
         // Describe how the input will be laid out to the buffer
         D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
@@ -213,6 +207,19 @@ namespace SDX
 
         ReleaseObject(pVSBlob);
         ReleaseObject(pPSBlob);
+    }
+
+    void Graphics::LoadGrid()
+    {
+        g_Grid = new Grid(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        g_Grid->Init();
+    }
+
+    void Graphics::LoadSkybox()
+    {
+        g_Skybox = new Skybox(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        //g_Skybox->CreateSphere(10, 10);
+        //g_Skybox->LoadShaders();
     }
 
     void Graphics::LoadRasterizers()
@@ -254,7 +261,7 @@ namespace SDX
     {
         // Example models: Cube, Tiger(Textured), Teapot, Teddy
         g_Model1 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Model1->LoadModel("Models/Teddy.obj", L"Models/Tiger.jpg", false, false);
+        g_Model1->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
 
         g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
         g_Model2->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
@@ -318,25 +325,44 @@ namespace SDX
     void Graphics::Render()
     {
         // Clear the screen and stencil view
-        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
+        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::DarkSeaGreen);
+        //m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
         m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-        // Update our time
-        static float t = 0.0f;
-        static ULONGLONG timeStart = 0;
-        ULONGLONG timeCur = GetTickCount64();
-        if (timeStart == 0)
-            timeStart = timeCur;
-        t = (timeCur - timeStart) / 1000.0f;
+        //XMMATRIX t_World;
+        //t_World = XMLoadFloat4x4(&m_GridWorld);
+        //t_World = XMMatrixScaling(10.0f, 10.0f, 10.0f);
+        //XMStoreFloat4x4(&m_GridWorld, t_World);
+        //cbPerObject grid;
+        //grid.WVP = GetWVP(m_GridWorld);
+        //m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &grid, 0, 0);
+        //// Render our grid to the screen
+        //g_Grid->Render();
 
         // Set the constant buffer
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
+        // Set the type of primitive that should be rendered from this vertex buffer, in this case a line list.
+        m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Set shaders for meshes
+        m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+        m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+
+        //// Update our time
+        //static float t = 0.0f;
+        //static ULONGLONG timeStart = 0;
+        //ULONGLONG timeCur = GetTickCount64();
+        //if (timeStart == 0)
+        //    timeStart = timeCur;
+        //t = (timeCur - timeStart) / 1000.0f;
+
+
         // ---
         // Object #1 (Spinning)
         // ---
-        XMMATRIX t_World;
-        XMMATRIX t_Spin = XMMatrixRotationY(t);
+        XMMATRIX t_World = XMMatrixIdentity();
+        XMMATRIX t_Spin = XMMatrixRotationY(-1.00f);
         XMMATRIX t_Scale = XMMatrixScaling(0.004f, 0.004f, 0.004f); // Original file is pretty large
         t_World = XMLoadFloat4x4(&m_Object1World);
         t_World = t_Scale * t_Spin;
@@ -348,24 +374,6 @@ namespace SDX
         m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb1, 0, 0);
 
         g_Model1->DrawIndexed();
-
-        // ---
-        // Object #2 (Rotating around axis)
-        // ---
-        XMMATRIX mSpin = XMMatrixRotationZ(-t);
-        XMMATRIX mOrbit = XMMatrixRotationY(-t * 2.0f);
-        XMMATRIX mTranslate = XMMatrixTranslation(-4.0f, 0.0f, 0.0f);
-        XMMATRIX mScale = XMMatrixScaling(0.001f, 0.001f, 0.001f);
-        t_World = XMLoadFloat4x4(&m_Object2World);
-        t_World = mScale * mSpin * mTranslate * mOrbit;
-        XMStoreFloat4x4(&m_Object2World, t_World);
-
-        cbPerObject cb2;
-        cb2.WVP = GetWVP(m_Object2World);
-
-        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb2, 0, 0);
-
-        g_Model2->DrawIndexed();
 
         // Present to the screen this frame
         m_pSwapChain->Present(0, 0);

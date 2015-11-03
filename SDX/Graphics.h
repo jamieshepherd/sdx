@@ -2,7 +2,9 @@
 
 #include "Shared.h"
 #include "Camera.h"
+#include "Grid.h"
 #include "Model.h"
+#include "Skybox.h"
 
 namespace SDX
 {
@@ -14,6 +16,8 @@ namespace SDX
 
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void LoadShaders();
+            void LoadGrid();
+            void LoadSkybox();
             void LoadRasterizers();
             void LoadMesh();
             void Update(SDX::Camera* g_Camera);
@@ -28,8 +32,10 @@ namespace SDX
             ID3D11RasterizerState*  rs_Solid;
             ID3D11RasterizerState*  rs_WireFrame;
 
-            Model*  g_Model1;
-            Model*  g_Model2;
+            Grid*                   g_Grid;
+            Model*                  g_Model1;
+            Model*                  g_Model2;
+            Skybox*                 g_Skybox;
 
             XMMATRIX                g_Rotation;
             XMMATRIX                g_Scale;
@@ -68,6 +74,7 @@ namespace SDX
             XMFLOAT4X4                m_WVP;
             //XMFLOAT4X4                m_World;
 
+            XMFLOAT4X4                m_GridWorld;
             XMFLOAT4X4                m_Object1World;
             XMFLOAT4X4                m_Object2World;
 
