@@ -17,22 +17,19 @@ namespace SDX
             void MoveBackward();
             void MoveLeft();
             void MoveRight();
-            void TurnLeft();
-            void TurnRight();
+            void UpdateMouseXY(long xPosition, long yPosition);
 
             void Shutdown();
-
-            float      g_Speed;
-
         protected:
+            XMFLOAT4X4 m_ViewMatrix;
             XMFLOAT3   m_Position;
             XMFLOAT3   m_Target;
             XMFLOAT3   m_Up;
+            float      m_CamYaw;
+            float      m_CamPitch;
+            float      g_Speed;
+            float      g_Sensitivity;            
 
-            float m_RotationX = 0.0f;
-            float m_RotationY = 0.0f;
-            float m_RotationZ = 0.0f;
-
-            XMFLOAT4X4 m_ViewMatrix;
+            XMVECTOR DefaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     };
 }

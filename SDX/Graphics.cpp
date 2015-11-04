@@ -482,8 +482,9 @@ namespace SDX
         XMMATRIX t_World = XMMatrixIdentity();
         XMMATRIX t_Spin = XMMatrixRotationY(-1.00f);
         XMMATRIX t_Scale = XMMatrixScaling(0.004f, 0.004f, 0.004f); // Original file is pretty large
+        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 4.0f, 0.0f);
         t_World = XMLoadFloat4x4(&m_Object1World);
-        t_World = t_Scale * t_Spin;
+        t_World = t_Scale * t_Spin * t_Translation;
         XMStoreFloat4x4(&m_Object1World, t_World);
 
         cbPerObject cb1;

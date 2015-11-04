@@ -81,9 +81,6 @@ namespace SDX
     {
         CheckState();
 
-        // Get mouse positions
-        m_MouseX += m_MouseState.lX;
-        m_MouseY += m_MouseState.lY;
         m_MouseWheel += m_MouseState.lZ;
 
         // If they press escape, post a quit message and exit
@@ -119,6 +116,11 @@ namespace SDX
             else {
                 g_Graphics->SetRasterizer(1);
             }
+        }
+
+        // Mouse XY
+        if (m_PrevMouseState.lX != m_MouseState.lX || m_PrevMouseState.lY != m_MouseState.lY) {
+            g_Camera->UpdateMouseXY(m_MouseState.lX, m_MouseState.lY);
         }
 
         // Copy the current set to previous keys for the next iteration

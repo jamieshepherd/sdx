@@ -1,12 +1,13 @@
 #include "Camera.h"
+#include <iostream>
+#include <string>
 
 namespace SDX
 {
     Camera::Camera() :
-        m_Position(XMFLOAT3(0.0f, 5.0f, -8.0f)),
-        m_Target(XMFLOAT3(0.0f, 0.0f, 0.0f)),
-        m_Up(XMFLOAT3(0.0f, 1.0f, 0.0f)),
-        g_Speed(0.005f)
+        m_Position(XMFLOAT3(0.0f, 5.0f, -8.0f)), m_Target(XMFLOAT3(0.0f, 0.0f, 1.0f)), m_Up(XMFLOAT3(0.0f, 1.0f, 0.0f)),
+        g_Speed(0.005f), g_Sensitivity(0.005f),
+        m_CamYaw(0.0f), m_CamPitch(0.0f)
     {
     }
 
@@ -22,9 +23,15 @@ namespace SDX
 
     XMFLOAT4X4 Camera::GetViewMatrix()
     {
+        XMVECTOR CamUp = XMLoadFloat3(&m_Up);
         XMVECTOR CamPosition = XMLoadFloat3(&m_Position);
         XMVECTOR CamTarget = XMLoadFloat3(&m_Target);
-        XMVECTOR CamUp = XMLoadFloat3(&m_Up);
+
+        XMMATRIX CamRotation = XMMatrixRotationRollPitchYaw(m_CamPitch, m_CamYaw, 0);
+
+        CamTarget = XMVector3TransformCoord(DefaultForward, CamRotation);
+        CamTarget = XMVector3Normalize(CamTarget);
+        CamTarget = CamPosition + CamTarget;
 
         XMMATRIX ViewMatrix = XMMatrixLookAtLH(CamPosition, CamTarget, CamUp);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
@@ -44,22 +51,18 @@ namespace SDX
 
     void Camera::MoveLeft()
     {
-        m_Position.x += g_Speed;
+        m_Position.x -= g_Speed;
     }
 
     void Camera::MoveRight()
     {
-        m_Position.x -= g_Speed;
+        m_Position.x += g_Speed;
     }
 
-    void Camera::TurnLeft()
+    void Camera::UpdateMouseXY(long xPosition, long yPosition)
     {
-
-    }
-
-    void Camera::TurnRight()
-    {
-
+        m_CamYaw += xPosition * g_Sensitivity;
+        m_CamPitch += yPosition * g_Sensitivity;
     }
 
     void Camera::Shutdown()
