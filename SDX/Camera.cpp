@@ -34,30 +34,22 @@ namespace SDX
 
     void Camera::MoveForward()
     {
-        float radians = m_RotationY * 0.0174532925f;
-        m_Position.x += sinf(radians) * g_Speed;
-        m_Position.z += cosf(radians) * g_Speed;
+        m_Position.z += g_Speed;
     }
 
     void Camera::MoveBackward()
     {
-        float radians = m_RotationY * 0.0174532925f;
-        m_Position.x -= sinf(radians) * g_Speed;
-        m_Position.z -= cosf(radians) * g_Speed;
+        m_Position.z -= g_Speed;
     }
 
     void Camera::MoveLeft()
     {
-        float radians = m_RotationY * 0.0174532925f;
-        m_Position.x += cosf(radians) * g_Speed;
-        m_Position.z += sinf(radians) * g_Speed;
+        m_Position.x += g_Speed;
     }
 
     void Camera::MoveRight()
     {
-        float radians = m_RotationY * 0.0174532925f;
-        m_Position.x -= cosf(radians) * g_Speed;
-        m_Position.z -= sinf(radians) * g_Speed;
+        m_Position.x -= g_Speed;
     }
 
     void Camera::TurnLeft()
