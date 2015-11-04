@@ -18,6 +18,7 @@
 #include <D3Dcompiler.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
+#include "WICTextureLoader.h"
 
 #define ReleaseObject(object) if((object) != nullptr) { object->Release(); object = nullptr; }
 #define KEYDOWN( name, key ) ( name[key] & 0x80 )

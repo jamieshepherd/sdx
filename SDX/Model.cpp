@@ -152,9 +152,6 @@ namespace SDX
 
         ThrowIfFailed(g_pDevice->CreateSamplerState(&samplerDesc, &m_MeshTextureSamplerState), L"Couldn't create sampler state");
 
-        g_pDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
-        g_pDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
-
         return true;
     }
 
@@ -183,7 +180,6 @@ namespace SDX
         resourceData.pSysMem = &m_Indices[0];
         g_pDevice->CreateBuffer(&bufferDesc, &resourceData, &g_pIndexBuffer);
 
-
         return true;
     }
 
@@ -191,6 +187,9 @@ namespace SDX
     {
         UINT stride = sizeof(VERTEX);
         UINT offset = 0;
+
+        g_pDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
+        g_pDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
 
         // Set vertex buffer to this one
         g_pDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);

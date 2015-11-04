@@ -8,9 +8,7 @@ Engine::Engine(HINSTANCE instance, const std::wstring& className, const std::wst
     : m_Instance(instance), m_ClassName(className), m_WindowTitle(windowTitle), m_ShowCommand(showCommand)
 {
     m_ScreenWidth = 1024;
-    m_ScreenHeight = 768;
-
-    g_Camera.SetPositions(XMFLOAT3(3.0f, 3.0f, -12.0f), XMFLOAT3(0.0f, 0.0f, 0.0f));    
+    m_ScreenHeight = 768;   
 }
 
 //--------------------------------------------------------------------------------------

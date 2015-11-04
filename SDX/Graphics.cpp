@@ -26,10 +26,10 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     void Graphics::InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow)
     {   
-        m_ScreenWidth = m_pScreenWidth;
+        m_ScreenWidth  = m_pScreenWidth;
         m_ScreenHeight = m_pScreenHeight;
         m_WindowHandle = m_pWindowHandle;
-        m_Window = m_pWindow;
+        m_Window       = m_pWindow;
 
         UINT createDeviceFlags = 0;
 
@@ -43,12 +43,11 @@ namespace SDX
             D3D_FEATURE_LEVEL_10_0
         };
 
-        ID3D11Device* direct3DDevice = nullptr;
+        ID3D11Device*        direct3DDevice        = nullptr;
         ID3D11DeviceContext* direct3DDeviceContext = nullptr;
 
         // Create the Direct3D device
         ThrowIfFailed(D3D11CreateDevice(NULL, m_DriverType, NULL, createDeviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &direct3DDevice, &m_FeatureLevel, &direct3DDeviceContext), L"Could not create D3D device");
-        
 
         // Swap over to ID3D11Device1
         ThrowIfFailed(direct3DDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(&m_pDirect3DDevice)), L"Could not swap to ID3D11Device1");
@@ -71,21 +70,21 @@ namespace SDX
         // Swap chain descriptor
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
         ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-        swapChainDesc.Width = *m_ScreenWidth;
-        swapChainDesc.Height = *m_ScreenHeight;
-        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.Width              = *m_ScreenWidth;
+        swapChainDesc.Height             = *m_ScreenHeight;
+        swapChainDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
+        swapChainDesc.SampleDesc.Count   = 1;
         swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 1;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        swapChainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount        = 1;
+        swapChainDesc.SwapEffect         = DXGI_SWAP_EFFECT_DISCARD;
 
         // Swap chain descriptor for fullscreen
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullScreenDesc;
         ZeroMemory(&fullScreenDesc, sizeof(fullScreenDesc));
-        fullScreenDesc.RefreshRate.Numerator = 60;
+        fullScreenDesc.RefreshRate.Numerator   = 60;
         fullScreenDesc.RefreshRate.Denominator = 1;
-        fullScreenDesc.Windowed = true;
+        fullScreenDesc.Windowed                = true;
 
         // Swap to IDXGI Device
         IDXGIDevice* dxgiDevice = nullptr;
@@ -126,18 +125,18 @@ namespace SDX
         // Depth stencil texture
         D3D11_TEXTURE2D_DESC depthStencilDesc;
         ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-        depthStencilDesc.Width = *m_ScreenWidth;
-        depthStencilDesc.Height = *m_ScreenHeight;
-        depthStencilDesc.MipLevels = 1;
-        depthStencilDesc.ArraySize = 1;
-        depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-        depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-        depthStencilDesc.CPUAccessFlags = 0;
-        depthStencilDesc.MiscFlags = 0;
+        depthStencilDesc.Width              = *m_ScreenWidth;
+        depthStencilDesc.Height             = *m_ScreenHeight;
+        depthStencilDesc.MipLevels          = 1;
+        depthStencilDesc.ArraySize          = 1;
+        depthStencilDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthStencilDesc.Usage              = D3D11_USAGE_DEFAULT;
+        depthStencilDesc.BindFlags          = D3D11_BIND_DEPTH_STENCIL;
+        depthStencilDesc.CPUAccessFlags     = 0;
+        depthStencilDesc.MiscFlags          = 0;
         //depthStencilDesc.SampleDesc.Count = multiSamplingCount;
         //depthStencilDesc.SampleDesc.Quality = multiSamplingQualityLevels - 1;
-        depthStencilDesc.SampleDesc.Count = 1;
+        depthStencilDesc.SampleDesc.Count   = 1;
         depthStencilDesc.SampleDesc.Quality = 0;
 
         // 2D texture which acts as our depth buffer
@@ -147,16 +146,18 @@ namespace SDX
         // Create the depth stencil view, take in the stencil descriptor
         D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
         ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-        depthStencilViewDesc.Format = depthStencilDesc.Format;
-        depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        depthStencilViewDesc.Format             = depthStencilDesc.Format;
+        depthStencilViewDesc.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
         depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+        // Create the view
         ThrowIfFailed(m_pDirect3DDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &depthStencilViewDesc, &m_pDepthStencilView), L"Could not create depth stencil view");
 
         D3D11_VIEWPORT viewport;
         viewport.TopLeftX = 0.0f;
         viewport.TopLeftY = 0.0f;
-        viewport.Width = static_cast<float>(*m_ScreenWidth);
-        viewport.Height = static_cast<float>(*m_ScreenHeight);
+        viewport.Width    = static_cast<float>(*m_ScreenWidth);
+        viewport.Height   = static_cast<float>(*m_ScreenHeight);
         viewport.MinDepth = 0.0f;
         viewport.MaxDepth = 1.0f;
 
@@ -168,7 +169,6 @@ namespace SDX
         LoadSkybox();
         LoadRasterizers();
         LoadMesh();
-
         LoadFont();
 
         m_pDirect3DDeviceContext->RSSetState(rs_Solid);
@@ -263,8 +263,11 @@ namespace SDX
         g_Model1 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
         g_Model1->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
 
-        g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Model2->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
+        //g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        //g_Model2->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
+
+        g_Terrain = new Terrain(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        g_Terrain->Init();
 
         // Describe constant buffers
         D3D11_BUFFER_DESC bufferDesc;
@@ -280,9 +283,11 @@ namespace SDX
         // Set primitive topology
         m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+        // Set Camera View matrix
+
         // Set the Camera Projection matrix
         XMMATRIX t_CamProjection;
-        t_CamProjection = XMMatrixPerspectiveFovLH(XM_PIDIV2, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 1.0f, 1000.0f);
+        t_CamProjection = XMMatrixPerspectiveFovLH(0.4f*3.14f, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.1f, 10000.0f);
         XMStoreFloat4x4(&m_CamProjection, t_CamProjection);
     }
 
@@ -295,21 +300,127 @@ namespace SDX
         m_CamView = g_Camera->GetViewMatrix();
     }
 
-    void Graphics::LoadFont()
+    void Graphics::LoadTerrain()
     {
         
+    }
+
+    void Graphics::LoadFont()
+    {
+        CreateDDSTextureFromFile(m_pDirect3DDevice, L"Textures/font.dds", nullptr, &m_FontTexture);
+
+        D3D11_SAMPLER_DESC colorMapDesc;
+        ZeroMemory(&colorMapDesc, sizeof(colorMapDesc));
+        colorMapDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        colorMapDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        colorMapDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        colorMapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        colorMapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        colorMapDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+        m_pDirect3DDevice->CreateSamplerState(&colorMapDesc, &m_FontTextureSamplerState);
+
+        D3D11_BUFFER_DESC vertexDesc;
+        ZeroMemory(&vertexDesc, sizeof(vertexDesc));
+        vertexDesc.Usage = D3D11_USAGE_DYNAMIC;
+        vertexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+        const int sizeOfSprite = sizeof(VERTEX) * 6;
+        const int maxLetters = 24;
+
+        vertexDesc.ByteWidth = sizeOfSprite * maxLetters;
+
+        m_pDirect3DDevice->CreateBuffer(&vertexDesc, 0, &g_pFontVertexBuffer);
     }
 
     void Graphics::DrawString(char* text, float positionX, float positionY)
     {
+        m_pDirect3DDeviceContext->PSSetShaderResources(0, 1, &m_FontTexture);
+        m_pDirect3DDeviceContext->PSSetSamplers(0, 1, &m_FontTextureSamplerState);
+
+        // Size in bytes for a single sprite.
+        const int sizeOfSprite = sizeof(VERTEX) * 6;
+
+        // Demo's dynamic buffer setup for max of 24 letters.
+        const int maxLetters = 24;
+
+        int length = strlen(text);
+
+        // Clamp for strings too long.
+        if (length > maxLetters)
+            length = maxLetters;
+
+        // Char's width on screen.
+        float charWidth = 32.0f / 800.0f;
+
+        // Char's height on screen.
+        float charHeight = 32.0f / 640.0f;
+
+        // Char's texel width.
+        float texelWidth = 32.0f / 864.0f;
+
+        // verts per-triangle (3) * total triangles (2) = 6.
+        const int verticesPerLetter = 6;
+
+        D3D11_MAPPED_SUBRESOURCE mapResource;
+        HRESULT d3dResult = m_pDirect3DDeviceContext->Map(g_pFontVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapResource);
         
+        // Point to our vertex buffer's internal data.
+        VERTEX *spritePtr = (VERTEX*)mapResource.pData;
+
+        const int indexA = static_cast<char>('A');
+        const int indexZ = static_cast<char>('Z');
+
+        for (int i = 0; i < length; ++i)
+        {
+            float thisStartX = positionX + (charWidth * static_cast<float>(i));
+            float thisEndX = thisStartX + charWidth;
+            float thisEndY = positionY + charHeight;
+
+            spritePtr[0].pos = XMFLOAT3(thisEndX, thisEndY, 1.0f);
+            spritePtr[1].pos = XMFLOAT3(thisEndX, positionY, 1.0f);
+            spritePtr[2].pos = XMFLOAT3(thisStartX, positionY, 1.0f);
+            spritePtr[3].pos = XMFLOAT3(thisStartX, positionY, 1.0f);
+            spritePtr[4].pos = XMFLOAT3(thisStartX, thisEndY, 1.0f);
+            spritePtr[5].pos = XMFLOAT3(thisEndX, thisEndY, 1.0f);
+
+            int texLookup = 0;
+            int letter = static_cast<char>(text[i]);
+
+            if (letter < indexA || letter > indexZ)
+            {
+                // Grab one index past Z, which is a blank space in the texture.
+                texLookup = (indexZ - indexA) + 1;
+            }
+            else
+            {
+                // A = 0, B = 1, Z = 25, etc.
+                texLookup = (letter - indexA);
+            }
+
+            float tuStart = 0.0f + (texelWidth * static_cast<float>(texLookup));
+            float tuEnd = tuStart + texelWidth;
+
+            spritePtr[0].tex = XMFLOAT2(tuEnd, 0.0f);
+            spritePtr[1].tex = XMFLOAT2(tuEnd, 1.0f);
+            spritePtr[2].tex = XMFLOAT2(tuStart, 1.0f);
+            spritePtr[3].tex = XMFLOAT2(tuStart, 1.0f);
+            spritePtr[4].tex = XMFLOAT2(tuStart, 0.0f);
+            spritePtr[5].tex = XMFLOAT2(tuEnd, 0.0f);
+
+            spritePtr += 6;
+        }
+
+        m_pDirect3DDeviceContext->Unmap(g_pFontVertexBuffer, 0);
+        m_pDirect3DDeviceContext->Draw(6 * length, 0);
     }
 
-    XMMATRIX Graphics::GetWVP(XMFLOAT4X4 world)
+    XMMATRIX Graphics::GetWVP(XMFLOAT4X4* world)
     {
         XMMATRIX t_WVP, t_World, t_View, t_Projection;
         t_WVP = XMLoadFloat4x4(&m_WVP);
-        t_World = XMLoadFloat4x4(&world);
+        t_World = XMLoadFloat4x4(world);
         t_View = XMLoadFloat4x4(&m_CamView);
         t_Projection = XMLoadFloat4x4(&m_CamProjection);
         t_WVP = t_World * t_View * t_Projection;
@@ -325,19 +436,9 @@ namespace SDX
     void Graphics::Render()
     {
         // Clear the screen and stencil view
-        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::DarkSeaGreen);
-        //m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
+        //m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::DarkSeaGreen);
+        m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::Black);
         m_pDirect3DDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-        //XMMATRIX t_World;
-        //t_World = XMLoadFloat4x4(&m_GridWorld);
-        //t_World = XMMatrixScaling(10.0f, 10.0f, 10.0f);
-        //XMStoreFloat4x4(&m_GridWorld, t_World);
-        //cbPerObject grid;
-        //grid.WVP = GetWVP(m_GridWorld);
-        //m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &grid, 0, 0);
-        //// Render our grid to the screen
-        //g_Grid->Render();
 
         // Set the constant buffer
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
@@ -357,9 +458,26 @@ namespace SDX
         //    timeStart = timeCur;
         //t = (timeCur - timeStart) / 1000.0f;
 
+        // ---
+        // Terrain
+        // ---
+
+        XMMATRIX t_GroundWorld = XMMatrixIdentity();
+        XMMATRIX t_GroundScale = XMMatrixScaling(500.0f, 10.0f, 500.0f);
+        XMMATRIX t_GroundTranslation = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
+        t_GroundWorld = t_GroundScale * t_GroundTranslation;
+        XMStoreFloat4x4(&m_GroundWorld, t_GroundWorld);
+
+        cbPerObject ground;
+        ground.WVP = GetWVP(&m_GroundWorld);
+
+        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &ground, 0, 0);
+        m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+        g_Terrain->Render();
 
         // ---
-        // Object #1 (Spinning)
+        // Object #1 (Mesh)
         // ---
         XMMATRIX t_World = XMMatrixIdentity();
         XMMATRIX t_Spin = XMMatrixRotationY(-1.00f);
@@ -369,11 +487,13 @@ namespace SDX
         XMStoreFloat4x4(&m_Object1World, t_World);
 
         cbPerObject cb1;
-        cb1.WVP = GetWVP(m_Object1World);
+        cb1.WVP = GetWVP(&m_Object1World);
 
         m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb1, 0, 0);
 
         g_Model1->DrawIndexed();
+
+        //DrawString("HELLO WORLD", -0.2f, 0.0f);
 
         // Present to the screen this frame
         m_pSwapChain->Present(0, 0);

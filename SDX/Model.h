@@ -3,7 +3,6 @@
 #include <istream>
 #include <fstream>
 #include "shared.h"
-#include "WICTextureLoader.h"
 
 namespace SDX
 {
