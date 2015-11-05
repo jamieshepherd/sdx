@@ -26,6 +26,8 @@ namespace SDX
 
     bool Model::LoadModel(char* filename, wchar_t* texturename, bool leftHanded, bool isTextured)
     {
+        m_Textured = isTextured;
+
         std::ifstream fileStream;
         char streamChar;
 
@@ -117,7 +119,7 @@ namespace SDX
         for (UINT i = 0; i < m_VertexPositions.size(); i++) {
 
             VERTEX newVertex;
-            if (isTextured) {
+            if (m_Textured) {
                 newVertex = { m_VertexPositions[i], m_VertexTextureCoords[i] };
                 //newVertex = { m_VertexPositions[i], XMFLOAT4(randColor(), randColor(), randColor(), 1.0f) };
             } else {
@@ -128,7 +130,7 @@ namespace SDX
             m_Vertices.push_back(newVertex);
         }
 
-        if (isTextured) {
+        if (m_Textured) {
             LoadTexture(texturename);
         }
 
@@ -188,8 +190,10 @@ namespace SDX
         UINT stride = sizeof(VERTEX);
         UINT offset = 0;
 
-        g_pDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
-        g_pDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
+        if (m_Textured) {
+            g_pDeviceContext->PSSetShaderResources(0, 1, &m_MeshTexture);
+            g_pDeviceContext->PSSetSamplers(0, 1, &m_MeshTextureSamplerState);
+        }        
 
         // Set vertex buffer to this one
         g_pDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);

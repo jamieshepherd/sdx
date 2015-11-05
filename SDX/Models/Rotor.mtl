@@ -1,0 +1,63 @@
+newmtl blade_cap
+Ka 0 0 0
+Kd 0.737164 0.658909 0.510315
+Ks 0.5 0.5 0.5
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl blades
+Ka 0 0 0
+Kd 0.510987 0.477521 0.401654
+Ks 0 0 0
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl Default
+Ka 0 0 0
+Kd 0.784314 0.784314 0.784314
+Ks 0 0 0
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl dark_grey
+Ka 0 0 0
+Kd 0.444095 0.475043 0.491538
+Ks 0 0 0
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl grey
+Ka 0 0 0
+Kd 0.632127 0.707953 0.711752
+Ks 0.2 0.2 0.2
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl tail_blades
+Ka 0 0 0
+Kd 0.550709 0.549183 0.552234
+Ks 0 0 0
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+
+newmtl tail_tips
+Ka 0 0 0
+Kd 0.682473 0.262349 0.218873
+Ks 0 0 0
+Ni 1
+Ns 400
+Tf 1 1 1
+d 1
+

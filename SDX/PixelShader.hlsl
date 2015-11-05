@@ -4,7 +4,7 @@ SamplerState MeshTextureSamplerState;
 struct VS_OUTPUT
 {
     float4 Position : SV_Position;
-    float4 TextureCoordinate : TEXCOORD;
+    float2 TextureCoordinate : TEXCOORD;
     //float4 Color : COLOR;
 };
 

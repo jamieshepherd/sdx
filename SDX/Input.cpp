@@ -91,21 +91,33 @@ namespace SDX
         // Key UP
         if (KEYDOWN(m_KeyboardKeys, DIK_UP)) {
             g_Camera->MoveForward();
+            if (g_Camera->m_CamMode == 2) {
+                g_Graphics->MovePlayerForward();
+            }
         }
 
         // Key DOWN
         if (KEYDOWN(m_KeyboardKeys, DIK_DOWN)) {
             g_Camera->MoveBackward();
+            if (g_Camera->m_CamMode == 2) {
+                g_Graphics->MovePlayerBackward();
+            }
         }
 
         // Key LEFT
         if (KEYDOWN(m_KeyboardKeys, DIK_LEFT)) {
             g_Camera->MoveLeft();
+            if (g_Camera->m_CamMode == 2) {
+                g_Graphics->MovePlayerLeft();
+            }
         }
 
         // Key RIGHT
         if (KEYDOWN(m_KeyboardKeys, DIK_RIGHT)) {
             g_Camera->MoveRight();
+            if (g_Camera->m_CamMode == 2) {
+                g_Graphics->MovePlayerRight();
+            }
         }
 
         // F1 Key - Change topology
@@ -115,6 +127,16 @@ namespace SDX
             }
             else {
                 g_Graphics->SetRasterizer(1);
+            }
+        }
+
+        // F1 Key - Change topology
+        if (KEYDOWN(m_KeyboardKeys, DIK_F2) && !KEYDOWN(m_PrevKeyboardKeys, DIK_F2)) {
+            if (g_Camera->m_CamMode == 1) {
+                g_Camera->SetCameraMode(2);
+            }
+            else {
+                g_Camera->SetCameraMode(1);
             }
         }
 

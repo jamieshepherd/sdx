@@ -2,7 +2,6 @@
 
 #include "Shared.h"
 #include "Camera.h"
-#include "Grid.h"
 #include "Model.h"
 #include "Terrain.h"
 #include "Skybox.h"
@@ -17,28 +16,31 @@ namespace SDX
 
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void LoadShaders();
-            void LoadGrid();
             void LoadSkybox();
             void LoadRasterizers();
             void LoadMesh();
             void Update(SDX::Camera* g_Camera);
             void LoadTerrain();
             void SetRasterizer(int state);
-            void LoadFont();
-            void DrawString(char* text, float positionX, float positionY);
             XMMATRIX GetWVP(XMFLOAT4X4* world);
-            void Render();
+            void Render(SDX::Camera* g_Camera);
+
+            void MovePlayerForward();
+            void MovePlayerBackward();
+            void MovePlayerLeft();
+            void MovePlayerRight();
+
             void Shutdown();
 
             int                     rs_State = 1;
+            int                     m_CamMode = 1;
             ID3D11RasterizerState*  rs_Solid;
             ID3D11RasterizerState*  rs_WireFrame;
 
             Terrain*                g_Terrain;
-            Grid*                   g_Grid;
+            Skybox*                 g_Skybox;
             Model*                  g_Model1;
             Model*                  g_Model2;
-            Skybox*                 g_Skybox;
 
             XMMATRIX                g_Rotation;
             XMMATRIX                g_Scale;
@@ -67,6 +69,7 @@ namespace SDX
 
             ID3D11VertexShader*       m_pVertexShader;
             ID3D11PixelShader*        m_pPixelShader;
+            ID3D11PixelShader*        m_pPixelShaderNT;
 
             ID3D11InputLayout*        m_pInputLayout;
 
@@ -75,11 +78,12 @@ namespace SDX
             ID3D11Buffer*             g_pIndexBuffer;
 
             ID3D11Buffer*             cbPerObjectBuffer;
+            ID3D11Buffer*             cbPerObjectManipBuffer;
 
             XMFLOAT4X4                m_WVP;
 
             XMFLOAT4X4                m_GroundWorld;
-            XMFLOAT4X4                m_GridWorld;
+            XMFLOAT4X4                m_SphereWorld;
             XMFLOAT4X4                m_Object1World;
             XMFLOAT4X4                m_Object2World;
 

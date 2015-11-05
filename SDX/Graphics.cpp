@@ -165,11 +165,9 @@ namespace SDX
         m_pDirect3DDeviceContext->RSSetViewports(1, &viewport);
 
         LoadShaders();
-        LoadGrid();
-        LoadSkybox();
+        //LoadSkybox();
         LoadRasterizers();
         LoadMesh();
-        LoadFont();
 
         m_pDirect3DDeviceContext->RSSetState(rs_Solid);
     }
@@ -183,15 +181,15 @@ namespace SDX
         // Compile our shaders to a blob type
         ID3DBlob* pVSBlob = nullptr;
         ID3DBlob* pPSBlob = nullptr;
+        ID3DBlob* pPS2Blob = nullptr;
         D3DCompileFromFile(L"VertexShader.hlsl", nullptr, nullptr, "main", "vs_4_0", 0, 0, &pVSBlob, 0);
         D3DCompileFromFile(L"PixelShader.hlsl", nullptr, nullptr, "main", "ps_4_0", 0, 0, &pPSBlob, 0);
+        D3DCompileFromFile(L"PixelShaderNT.hlsl", nullptr, nullptr, "mainNT", "ps_4_0", 0, 0, &pPS2Blob, 0);
 
         // Create our shaders
         m_pDirect3DDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &m_pVertexShader);
         m_pDirect3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShader);
-
-        // Set active shaders
-        
+        m_pDirect3DDevice->CreatePixelShader(pPS2Blob->GetBufferPointer(), pPS2Blob->GetBufferSize(), nullptr, &m_pPixelShaderNT);        
 
         // Describe how the input will be laid out to the buffer
         D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
@@ -207,17 +205,12 @@ namespace SDX
 
         ReleaseObject(pVSBlob);
         ReleaseObject(pPSBlob);
-    }
-
-    void Graphics::LoadGrid()
-    {
-        g_Grid = new Grid(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Grid->Init();
+        ReleaseObject(pPS2Blob);
     }
 
     void Graphics::LoadSkybox()
     {
-        g_Skybox = new Skybox(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        //g_Skybox = new Skybox(m_pDirect3DDevice, m_pDirect3DDeviceContext);
         //g_Skybox->CreateSphere(10, 10);
         //g_Skybox->LoadShaders();
     }
@@ -261,10 +254,10 @@ namespace SDX
     {
         // Example models: Cube, Tiger(Textured), Teapot, Teddy
         g_Model1 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Model1->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
+        g_Model1->LoadModel("Models/Tiger.obj", L"Textures/Tiger.jpg", false, true);
 
-        //g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        //g_Model2->LoadModel("Models/Tiger.obj", L"Models/Tiger.jpg", false, true);
+        g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
+        g_Model2->LoadModel("Models/Teapot.obj", L"", false, false);
 
         g_Terrain = new Terrain(m_pDirect3DDevice, m_pDirect3DDeviceContext);
         g_Terrain->Init();
@@ -280,6 +273,16 @@ namespace SDX
         // Create constant buffer
         m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &cbPerObjectBuffer);
 
+        // Describe constant buffers
+        ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+        bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        bufferDesc.ByteWidth = sizeof(cbPerObjectManip);
+        bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bufferDesc.CPUAccessFlags = 0;
+
+        // Create constant buffer
+        m_pDirect3DDevice->CreateBuffer(&bufferDesc, nullptr, &cbPerObjectManipBuffer);
+
         // Set primitive topology
         m_pDirect3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -289,6 +292,17 @@ namespace SDX
         XMMATRIX t_CamProjection;
         t_CamProjection = XMMatrixPerspectiveFovLH(0.4f*3.14f, (FLOAT)*m_ScreenWidth / (FLOAT)*m_ScreenHeight, 0.1f, 10000.0f);
         XMStoreFloat4x4(&m_CamProjection, t_CamProjection);
+
+
+        // Object #1
+        XMMATRIX t_World = XMMatrixIdentity();
+        XMMATRIX t_Spin = XMMatrixRotationY(2.4f);
+        XMMATRIX t_Scale = XMMatrixScaling(0.004f, 0.004f, 0.004f); // Original file is pretty large
+        //XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 4.0f, 0.0f);
+        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 4.0f, 0.0f);
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_Scale * t_Spin * t_Translation;
+        XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
     //--------------------------------------------------------------------------------------
@@ -303,117 +317,6 @@ namespace SDX
     void Graphics::LoadTerrain()
     {
         
-    }
-
-    void Graphics::LoadFont()
-    {
-        CreateDDSTextureFromFile(m_pDirect3DDevice, L"Textures/font.dds", nullptr, &m_FontTexture);
-
-        D3D11_SAMPLER_DESC colorMapDesc;
-        ZeroMemory(&colorMapDesc, sizeof(colorMapDesc));
-        colorMapDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        colorMapDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        colorMapDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-        colorMapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-        colorMapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        colorMapDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-        m_pDirect3DDevice->CreateSamplerState(&colorMapDesc, &m_FontTextureSamplerState);
-
-        D3D11_BUFFER_DESC vertexDesc;
-        ZeroMemory(&vertexDesc, sizeof(vertexDesc));
-        vertexDesc.Usage = D3D11_USAGE_DYNAMIC;
-        vertexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-        const int sizeOfSprite = sizeof(VERTEX) * 6;
-        const int maxLetters = 24;
-
-        vertexDesc.ByteWidth = sizeOfSprite * maxLetters;
-
-        m_pDirect3DDevice->CreateBuffer(&vertexDesc, 0, &g_pFontVertexBuffer);
-    }
-
-    void Graphics::DrawString(char* text, float positionX, float positionY)
-    {
-        m_pDirect3DDeviceContext->PSSetShaderResources(0, 1, &m_FontTexture);
-        m_pDirect3DDeviceContext->PSSetSamplers(0, 1, &m_FontTextureSamplerState);
-
-        // Size in bytes for a single sprite.
-        const int sizeOfSprite = sizeof(VERTEX) * 6;
-
-        // Demo's dynamic buffer setup for max of 24 letters.
-        const int maxLetters = 24;
-
-        int length = strlen(text);
-
-        // Clamp for strings too long.
-        if (length > maxLetters)
-            length = maxLetters;
-
-        // Char's width on screen.
-        float charWidth = 32.0f / 800.0f;
-
-        // Char's height on screen.
-        float charHeight = 32.0f / 640.0f;
-
-        // Char's texel width.
-        float texelWidth = 32.0f / 864.0f;
-
-        // verts per-triangle (3) * total triangles (2) = 6.
-        const int verticesPerLetter = 6;
-
-        D3D11_MAPPED_SUBRESOURCE mapResource;
-        HRESULT d3dResult = m_pDirect3DDeviceContext->Map(g_pFontVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapResource);
-        
-        // Point to our vertex buffer's internal data.
-        VERTEX *spritePtr = (VERTEX*)mapResource.pData;
-
-        const int indexA = static_cast<char>('A');
-        const int indexZ = static_cast<char>('Z');
-
-        for (int i = 0; i < length; ++i)
-        {
-            float thisStartX = positionX + (charWidth * static_cast<float>(i));
-            float thisEndX = thisStartX + charWidth;
-            float thisEndY = positionY + charHeight;
-
-            spritePtr[0].pos = XMFLOAT3(thisEndX, thisEndY, 1.0f);
-            spritePtr[1].pos = XMFLOAT3(thisEndX, positionY, 1.0f);
-            spritePtr[2].pos = XMFLOAT3(thisStartX, positionY, 1.0f);
-            spritePtr[3].pos = XMFLOAT3(thisStartX, positionY, 1.0f);
-            spritePtr[4].pos = XMFLOAT3(thisStartX, thisEndY, 1.0f);
-            spritePtr[5].pos = XMFLOAT3(thisEndX, thisEndY, 1.0f);
-
-            int texLookup = 0;
-            int letter = static_cast<char>(text[i]);
-
-            if (letter < indexA || letter > indexZ)
-            {
-                // Grab one index past Z, which is a blank space in the texture.
-                texLookup = (indexZ - indexA) + 1;
-            }
-            else
-            {
-                // A = 0, B = 1, Z = 25, etc.
-                texLookup = (letter - indexA);
-            }
-
-            float tuStart = 0.0f + (texelWidth * static_cast<float>(texLookup));
-            float tuEnd = tuStart + texelWidth;
-
-            spritePtr[0].tex = XMFLOAT2(tuEnd, 0.0f);
-            spritePtr[1].tex = XMFLOAT2(tuEnd, 1.0f);
-            spritePtr[2].tex = XMFLOAT2(tuStart, 1.0f);
-            spritePtr[3].tex = XMFLOAT2(tuStart, 1.0f);
-            spritePtr[4].tex = XMFLOAT2(tuStart, 0.0f);
-            spritePtr[5].tex = XMFLOAT2(tuEnd, 0.0f);
-
-            spritePtr += 6;
-        }
-
-        m_pDirect3DDeviceContext->Unmap(g_pFontVertexBuffer, 0);
-        m_pDirect3DDeviceContext->Draw(6 * length, 0);
     }
 
     XMMATRIX Graphics::GetWVP(XMFLOAT4X4* world)
@@ -433,7 +336,7 @@ namespace SDX
     // void Render()
     // Render anything available to the screen
     //--------------------------------------------------------------------------------------
-    void Graphics::Render()
+    void Graphics::Render(SDX::Camera* g_Camera)
     {
         // Clear the screen and stencil view
         //m_pDirect3DDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Colors::DarkSeaGreen);
@@ -450,13 +353,15 @@ namespace SDX
         m_pDirect3DDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
-        //// Update our time
-        //static float t = 0.0f;
-        //static ULONGLONG timeStart = 0;
-        //ULONGLONG timeCur = GetTickCount64();
-        //if (timeStart == 0)
-        //    timeStart = timeCur;
-        //t = (timeCur - timeStart) / 1000.0f;
+        // Update our time
+        static float t = 0.0f;
+        static ULONGLONG timeStart = 0;
+        ULONGLONG timeCur = GetTickCount64();
+        if (timeStart == 0)
+            timeStart = timeCur;
+        t = (timeCur - timeStart) / 100.0f;
+
+        float tailAngle = (float)sin(t);
 
         // ---
         // Terrain
@@ -475,29 +380,74 @@ namespace SDX
         m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
         g_Terrain->Render();
-
+        
         // ---
         // Object #1 (Mesh)
         // ---
-        XMMATRIX t_World = XMMatrixIdentity();
-        XMMATRIX t_Spin = XMMatrixRotationY(-1.00f);
-        XMMATRIX t_Scale = XMMatrixScaling(0.004f, 0.004f, 0.004f); // Original file is pretty large
-        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 4.0f, 0.0f);
-        t_World = XMLoadFloat4x4(&m_Object1World);
-        t_World = t_Scale * t_Spin * t_Translation;
-        XMStoreFloat4x4(&m_Object1World, t_World);
+        
 
-        cbPerObject cb1;
+        cbPerObjectManip cb1;
         cb1.WVP = GetWVP(&m_Object1World);
+        cb1.tailAngle.x = tailAngle;
 
-        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb1, 0, 0);
+        m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectManipBuffer);
+        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectManipBuffer, 0, nullptr, &cb1, 0, 0);
 
         g_Model1->DrawIndexed();
 
-        //DrawString("HELLO WORLD", -0.2f, 0.0f);
+        // If we're on follow camera, set new positions to that of model 1
+        if (g_Camera->m_CamMode == 2) {
+            // Some arbitrary numbers here to align the tiger since his model comes in at weird angles
+            XMFLOAT3 CamTarget = { m_Object1World._13, m_Object1World._23, m_Object1World._33 + 5 };
+            XMFLOAT3 CamPosition = { m_Object1World._41, (m_Object1World._42 + 8), (m_Object1World._43 - 17) };
+
+            g_Camera->SetPositions(CamPosition, CamTarget);
+        }
+        
+        // ---
+        // Object #2 (Rotor)
+        // ---
+
+        m_pDirect3DDeviceContext->PSSetShader(m_pPixelShaderNT, nullptr, 0);
+
+        XMMATRIX t_WorldOriginal, t_WorldNew;
+        XMMATRIX t_Spin = XMMatrixRotationY(t);
+        XMMATRIX t_Scale = XMMatrixScaling(0.5f, 0.5f, 0.5f); // Original file is pretty large
+        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 7.0f, 0.0f);
+        XMMATRIX t_World = t_Scale * t_Spin * t_Translation;
+
+        XMStoreFloat4x4(&m_Object2World, t_World);
+
+        cbPerObject cb2;
+        cb2.WVP = GetWVP(&m_Object2World);
+
+        m_pDirect3DDeviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+        m_pDirect3DDeviceContext->UpdateSubresource(cbPerObjectBuffer, 0, nullptr, &cb2, 0, 0);
+
+        g_Model2->DrawIndexed();
 
         // Present to the screen this frame
         m_pSwapChain->Present(0, 0);
+    }
+
+    void MovePlayerForward()
+    {
+
+    }
+
+    void MovePlayerBackward()
+    {
+
+    }
+
+    void MovePlayerLeft()
+    {
+
+    }
+
+    void MovePlayerRight()
+    {
+
     }
 
     //--------------------------------------------------------------------------------------

@@ -41,5 +41,7 @@ namespace SDX
             std::vector<XMFLOAT3>     m_VertexPositions;
             std::vector<XMFLOAT3>     m_VertexNormals;
             std::vector<XMFLOAT2>     m_VertexTextureCoords;
+
+            bool                      m_Textured;
     };
 }

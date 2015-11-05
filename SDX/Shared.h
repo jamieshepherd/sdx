@@ -37,6 +37,12 @@ struct cbPerObject
     XMMATRIX  WVP;
 };
 
+struct cbPerObjectManip
+{
+    XMMATRIX  WVP;
+    XMFLOAT4 tailAngle;
+};
+
 namespace SDX
 {
     void ThrowIfFailed(HRESULT hr, LPWSTR message);

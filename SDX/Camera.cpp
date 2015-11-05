@@ -29,9 +29,16 @@ namespace SDX
 
         XMMATRIX CamRotation = XMMatrixRotationRollPitchYaw(m_CamPitch, m_CamYaw, 0);
 
-        CamTarget = XMVector3TransformCoord(DefaultForward, CamRotation);
-        CamTarget = XMVector3Normalize(CamTarget);
-        CamTarget = CamPosition + CamTarget;
+        if (m_CamMode == 1) {
+            CamTarget = XMVector3TransformCoord(DefaultForward, CamRotation);
+            CamTarget = XMVector3Normalize(CamTarget);
+            CamTarget = CamPosition + CamTarget;
+        }
+        else if (m_CamMode == 2) {
+            CamTarget = XMVector3Normalize(CamTarget);
+            CamTarget = CamPosition + CamTarget;
+        }
+        
 
         XMMATRIX ViewMatrix = XMMatrixLookAtLH(CamPosition, CamTarget, CamUp);
         XMStoreFloat4x4(&m_ViewMatrix, ViewMatrix);
@@ -63,6 +70,20 @@ namespace SDX
     {
         m_CamYaw += xPosition * g_Sensitivity;
         m_CamPitch += yPosition * g_Sensitivity;
+    }
+
+    void Camera::SetCameraMode(int mode)
+    {
+        switch (mode) {
+            case 1:
+                m_CamMode = 1;
+                break;
+            case 2:
+                m_CamMode = 2;
+                break;
+            default:
+                m_CamMode = 1;
+        }
     }
 
     void Camera::Shutdown()

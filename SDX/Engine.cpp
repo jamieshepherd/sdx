@@ -85,7 +85,7 @@ void Engine::Update()
 {
     g_Input.Process(&g_Graphics, &g_Camera);
     g_Graphics.Update(&g_Camera);
-    g_Graphics.Render();
+    g_Graphics.Render(&g_Camera);
 }
 
 //--------------------------------------------------------------------------------------
