@@ -385,7 +385,6 @@ namespace SDX
         // Object #1 (Mesh)
         // ---
         
-
         cbPerObjectManip cb1;
         cb1.WVP = GetWVP(&m_Object1World);
         cb1.tailAngle.x = tailAngle;
@@ -413,7 +412,9 @@ namespace SDX
         XMMATRIX t_WorldOriginal, t_WorldNew;
         XMMATRIX t_Spin = XMMatrixRotationY(t);
         XMMATRIX t_Scale = XMMatrixScaling(0.5f, 0.5f, 0.5f); // Original file is pretty large
-        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 7.0f, 0.0f);
+        
+        XMMATRIX t_Translation = XMMatrixTranslation(m_Object1World._41, 7.0f, m_Object1World._43);
+
         XMMATRIX t_World = t_Scale * t_Spin * t_Translation;
 
         XMStoreFloat4x4(&m_Object2World, t_World);
@@ -430,24 +431,40 @@ namespace SDX
         m_pSwapChain->Present(0, 0);
     }
 
-    void MovePlayerForward()
+    void Graphics::MovePlayerForward()
     {
-
+        XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
+        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 0.0f, +g_Speed);
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_World * t_Translation;
+        XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
-    void MovePlayerBackward()
+    void Graphics::MovePlayerBackward()
     {
-
+        XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
+        XMMATRIX t_Translation = XMMatrixTranslation(0.0f, 0.0f, -g_Speed);
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_World * t_Translation;
+        XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
-    void MovePlayerLeft()
+    void Graphics::MovePlayerLeft()
     {
-
+        XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
+        XMMATRIX t_Translation = XMMatrixTranslation(-g_Speed, 0.0f, 0.0f);
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_World * t_Translation;
+        XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
-    void MovePlayerRight()
+    void Graphics::MovePlayerRight()
     {
-
+        XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
+        XMMATRIX t_Translation = XMMatrixTranslation(+g_Speed, 0.0f, 0.0f);
+        t_World = XMLoadFloat4x4(&m_Object1World);
+        t_World = t_World * t_Translation;
+        XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
     //--------------------------------------------------------------------------------------

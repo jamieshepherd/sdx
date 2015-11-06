@@ -1,4 +1,4 @@
-﻿Build started 05/11/2015 20:58:52.
+﻿Build started 05/11/2015 22:10:42.
      1>Project "D:\Projects\SDX\SDX\SDX.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          D:\Applications\Visual Studio 2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Graphics.cpp
@@ -22,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.31
+Time Elapsed 00:00:01.50

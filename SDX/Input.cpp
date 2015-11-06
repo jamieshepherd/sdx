@@ -90,33 +90,37 @@ namespace SDX
 
         // Key UP
         if (KEYDOWN(m_KeyboardKeys, DIK_UP)) {
-            g_Camera->MoveForward();
             if (g_Camera->m_CamMode == 2) {
                 g_Graphics->MovePlayerForward();
+            } else {
+                g_Camera->MoveForward();
             }
         }
 
         // Key DOWN
         if (KEYDOWN(m_KeyboardKeys, DIK_DOWN)) {
-            g_Camera->MoveBackward();
             if (g_Camera->m_CamMode == 2) {
                 g_Graphics->MovePlayerBackward();
+            } else {
+                g_Camera->MoveBackward();
             }
         }
 
         // Key LEFT
         if (KEYDOWN(m_KeyboardKeys, DIK_LEFT)) {
-            g_Camera->MoveLeft();
             if (g_Camera->m_CamMode == 2) {
                 g_Graphics->MovePlayerLeft();
+            } else {
+                g_Camera->MoveLeft();
             }
         }
 
         // Key RIGHT
         if (KEYDOWN(m_KeyboardKeys, DIK_RIGHT)) {
-            g_Camera->MoveRight();
             if (g_Camera->m_CamMode == 2) {
                 g_Graphics->MovePlayerRight();
+            } else {
+                g_Camera->MoveRight();
             }
         }
 
@@ -124,18 +128,16 @@ namespace SDX
         if (KEYDOWN(m_KeyboardKeys, DIK_F1) && !KEYDOWN(m_PrevKeyboardKeys, DIK_F1)) {
             if (g_Graphics->rs_State == 1) {
                 g_Graphics->SetRasterizer(0);
-            }
-            else {
+            } else {
                 g_Graphics->SetRasterizer(1);
             }
         }
 
-        // F1 Key - Change topology
+        // F2 Key - Change camera view
         if (KEYDOWN(m_KeyboardKeys, DIK_F2) && !KEYDOWN(m_PrevKeyboardKeys, DIK_F2)) {
             if (g_Camera->m_CamMode == 1) {
                 g_Camera->SetCameraMode(2);
-            }
-            else {
+            } else {
                 g_Camera->SetCameraMode(1);
             }
         }

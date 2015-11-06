@@ -30,6 +30,8 @@ namespace SDX
             void MovePlayerLeft();
             void MovePlayerRight();
 
+            float g_Speed = 0.005f;
+
             void Shutdown();
 
             int                     rs_State = 1;
