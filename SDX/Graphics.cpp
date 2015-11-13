@@ -17,7 +17,6 @@ namespace SDX
     //--------------------------------------------------------------------------------------
     Graphics::~Graphics()
     {
-
     }
 
     //--------------------------------------------------------------------------------------
@@ -208,13 +207,10 @@ namespace SDX
         ReleaseObject(pPS2Blob);
     }
 
-    void Graphics::LoadSkybox()
-    {
-        //g_Skybox = new Skybox(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        //g_Skybox->CreateSphere(10, 10);
-        //g_Skybox->LoadShaders();
-    }
-
+    //--------------------------------------------------------------------------------------
+    // void LoadRasterizers()
+    // Load rasterizers so we can switch between wireframe and solid
+    //--------------------------------------------------------------------------------------
     void Graphics::LoadRasterizers()
     {
         D3D11_RASTERIZER_DESC rsDesc;
@@ -229,6 +225,10 @@ namespace SDX
         ThrowIfFailed(m_pDirect3DDevice->CreateRasterizerState(&rsDesc, &rs_Solid), L"Couldn't create rasterizer state Solid");
     }
 
+    //--------------------------------------------------------------------------------------
+    // void SetRasterizer()
+    // Set the current Rasterizer
+    //--------------------------------------------------------------------------------------
     void Graphics::SetRasterizer(int state)
     {
         switch (state) {
@@ -257,7 +257,7 @@ namespace SDX
         g_Model1->LoadModel("Models/Tiger.obj", L"Textures/Tiger.jpg", false, true);
 
         g_Model2 = new Model(m_pDirect3DDevice, m_pDirect3DDeviceContext);
-        g_Model2->LoadModel("Models/Teapot.obj", L"", false, false);
+        g_Model2->LoadModel("Models/Rotor.obj", L"Textures/Rotor.jpg", false, false);
 
         g_Terrain = new Terrain(m_pDirect3DDevice, m_pDirect3DDeviceContext);
         g_Terrain->Init();
@@ -306,19 +306,18 @@ namespace SDX
     }
 
     //--------------------------------------------------------------------------------------
-    // void Render()
-    // Make any updates
+    // void Update()
+    // Get the last updated camera view matrix
     //--------------------------------------------------------------------------------------
     void Graphics::Update(SDX::Camera* g_Camera)
     {
         m_CamView = g_Camera->GetViewMatrix();
     }
 
-    void Graphics::LoadTerrain()
-    {
-        
-    }
-
+    //--------------------------------------------------------------------------------------
+    // XMMATRIX GetWVP()
+    // Take in a world matrix and get the WORLD VIEW PROEJCTION matrix of it
+    //--------------------------------------------------------------------------------------
     XMMATRIX Graphics::GetWVP(XMFLOAT4X4* world)
     {
         XMMATRIX t_WVP, t_World, t_View, t_Projection;
@@ -409,13 +408,12 @@ namespace SDX
 
         m_pDirect3DDeviceContext->PSSetShader(m_pPixelShaderNT, nullptr, 0);
 
-        XMMATRIX t_WorldOriginal, t_WorldNew;
-        XMMATRIX t_Spin = XMMatrixRotationY(t);
-        XMMATRIX t_Scale = XMMatrixScaling(0.5f, 0.5f, 0.5f); // Original file is pretty large
-        
-        XMMATRIX t_Translation = XMMatrixTranslation(m_Object1World._41, 7.0f, m_Object1World._43);
+        XMMATRIX t_Roll = XMMatrixRotationZ(-1.5708f); // -90 degrees in radians
+        XMMATRIX t_Spin = XMMatrixRotationX(t); // Spin the rotor
+        XMMATRIX t_Scale = XMMatrixScaling(2.0f, 2.0f, 2.0f);      
+        XMMATRIX t_Translation = XMMatrixTranslation(m_Object1World._41, 7.2f, m_Object1World._43); // Stick it to our mesh 1
 
-        XMMATRIX t_World = t_Scale * t_Spin * t_Translation;
+        XMMATRIX t_World = t_Scale * t_Spin *  t_Roll *  t_Translation;
 
         XMStoreFloat4x4(&m_Object2World, t_World);
 
@@ -431,6 +429,10 @@ namespace SDX
         m_pSwapChain->Present(0, 0);
     }
 
+    //--------------------------------------------------------------------------------------
+    // void MovePlayerForward()
+    // Move the player mesh forward
+    //--------------------------------------------------------------------------------------
     void Graphics::MovePlayerForward()
     {
         XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
@@ -440,6 +442,10 @@ namespace SDX
         XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
+    //--------------------------------------------------------------------------------------
+    // void MovePlayerBackward()
+    // Move the player mesh backward
+    //--------------------------------------------------------------------------------------
     void Graphics::MovePlayerBackward()
     {
         XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
@@ -449,6 +455,10 @@ namespace SDX
         XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
+    //--------------------------------------------------------------------------------------
+    // void MovePlayerLeft()
+    // Move the player mesh left
+    //--------------------------------------------------------------------------------------
     void Graphics::MovePlayerLeft()
     {
         XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
@@ -458,6 +468,10 @@ namespace SDX
         XMStoreFloat4x4(&m_Object1World, t_World);
     }
 
+    //--------------------------------------------------------------------------------------
+    // void MovePlayerRight()
+    // Move the player mesh right
+    //--------------------------------------------------------------------------------------
     void Graphics::MovePlayerRight()
     {
         XMMATRIX t_World = XMLoadFloat4x4(&m_Object1World);
@@ -484,5 +498,9 @@ namespace SDX
         ReleaseObject(m_pDepthStencilBuffer);
         ReleaseObject(m_pDirect3DDeviceContext);
         ReleaseObject(m_pDirect3DDevice);       
+
+        g_Terrain->Shutdown();
+        g_Model1->Shutdown();
+        g_Model2->Shutdown();
     }
 }

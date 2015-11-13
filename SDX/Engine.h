@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Shared.h"
-#include "Shader.h"
 #include "Input.h"
 #include "Graphics.h"
 #include "Camera.h"

@@ -17,18 +17,16 @@ namespace SDX
             bool                      LoadBuffers();
             void                      DrawIndexed();
             XMMATRIX                  GetWorld();
-            void                      Release();
+            void                      Shutdown();
 
             ID3D11Device1*            g_pDevice;
             ID3D11DeviceContext1*     g_pDeviceContext;
             ID3D11Buffer*             g_pVertexBuffer;
             ID3D11Buffer*             g_pIndexBuffer;
 
-        protected:
-            ID3D11BlendState*         m_Transparency;
-            ID3D11Buffer*             m_MeshVertexBuffer;
-            ID3D11Buffer*             m_MeshIndexBuffer;
+            bool                      m_Textured;
 
+        protected:
             XMFLOAT4X4                m_World;
 
             ID3D11ShaderResourceView* m_MeshTexture;
@@ -42,6 +40,5 @@ namespace SDX
             std::vector<XMFLOAT3>     m_VertexNormals;
             std::vector<XMFLOAT2>     m_VertexTextureCoords;
 
-            bool                      m_Textured;
     };
 }

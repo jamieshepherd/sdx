@@ -84,10 +84,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Shared.cpp" />
-    <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
@@ -97,10 +94,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Shader.h" />
     <ClInclude Include="Shared.h" />
-    <ClInclude Include="Skybox.h" />
-    <ClInclude Include="Sound.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>

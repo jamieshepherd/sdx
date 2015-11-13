@@ -4,7 +4,6 @@
 #include "Camera.h"
 #include "Model.h"
 #include "Terrain.h"
-#include "Skybox.h"
 
 namespace SDX
 {
@@ -16,11 +15,9 @@ namespace SDX
 
             void InitDirectX(UINT* m_pScreenWidth, UINT* m_pScreenHeight, HWND* m_pWindowHandle, WNDCLASSEX* m_pWindow);
             void LoadShaders();
-            void LoadSkybox();
             void LoadRasterizers();
             void LoadMesh();
             void Update(SDX::Camera* g_Camera);
-            void LoadTerrain();
             void SetRasterizer(int state);
             XMMATRIX GetWVP(XMFLOAT4X4* world);
             void Render(SDX::Camera* g_Camera);
@@ -40,7 +37,6 @@ namespace SDX
             ID3D11RasterizerState*  rs_WireFrame;
 
             Terrain*                g_Terrain;
-            Skybox*                 g_Skybox;
             Model*                  g_Model1;
             Model*                  g_Model2;
 

@@ -2,17 +2,29 @@
 
 namespace SDX
 {
+    //--------------------------------------------------------------------------------------
+    // Terrain()
+    // Terrain constructor
+    //--------------------------------------------------------------------------------------
     Terrain::Terrain(ID3D11Device1* pDevice, ID3D11DeviceContext1* pDeviceContext)
     {
         g_pDevice = pDevice;
         g_pDeviceContext = pDeviceContext;
     }
 
+    //--------------------------------------------------------------------------------------
+    // Terrain()
+    // Terrain destructor
+    //--------------------------------------------------------------------------------------
     Terrain::~Terrain()
     {
 
     }
 
+    //--------------------------------------------------------------------------------------
+    // void Init()
+    // Initialise our terrain object (A simple stretched out cube)
+    //--------------------------------------------------------------------------------------
     void Terrain::Init()
     {
         //Create the vertex buffer
@@ -39,7 +51,7 @@ namespace SDX
         D3D11_SUBRESOURCE_DATA iinitData;
 
         iinitData.pSysMem = indices;
-        g_pDevice->CreateBuffer(&indexBufferDesc, &iinitData, &squareIndexBuffer);
+        g_pDevice->CreateBuffer(&indexBufferDesc, &iinitData, &m_IndexBuffer);
 
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
@@ -54,10 +66,10 @@ namespace SDX
 
         ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
         vertexBufferData.pSysMem = vertices;
-        g_pDevice->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &squareVertBuffer);
+        g_pDevice->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_VertexBuffer);
 
         // Assign texture
-        ThrowIfFailed(CreateWICTextureFromFile(g_pDevice, g_pDeviceContext, L"Textures/grass.jpg", nullptr, &CubesTexture), L"Couldn't load texture from file");
+        ThrowIfFailed(CreateWICTextureFromFile(g_pDevice, g_pDeviceContext, L"Textures/grass.jpg", nullptr, &m_CubesTexture), L"Couldn't load texture from file");
 
         // Describe the Sample State
         D3D11_SAMPLER_DESC sampDesc;
@@ -68,23 +80,39 @@ namespace SDX
         sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
         //Create the Sample State
-        g_pDevice->CreateSamplerState(&sampDesc, &CubesTexSamplerState);
+        g_pDevice->CreateSamplerState(&sampDesc, &m_CubesTexSamplerState);
     }
 
+    //--------------------------------------------------------------------------------------
+    // void Render()
+    // Render our terrain to the screen
+    //--------------------------------------------------------------------------------------
     void Terrain::Render()
     {
         UINT stride = sizeof(VERTEX);
         UINT offset = 0;
 
-        g_pDeviceContext->PSSetShaderResources(0, 1, &CubesTexture);
-        g_pDeviceContext->PSSetSamplers(0, 1, &CubesTexSamplerState);
+        g_pDeviceContext->PSSetShaderResources(0, 1, &m_CubesTexture);
+        g_pDeviceContext->PSSetSamplers(0, 1, &m_CubesTexSamplerState);
 
         // Set index buffer to this one
-        g_pDeviceContext->IASetIndexBuffer(squareIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        g_pDeviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
         // Set vertex buffer to this one
-        g_pDeviceContext->IASetVertexBuffers(0, 1, &squareVertBuffer, &stride, &offset);
+        g_pDeviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
         
         g_pDeviceContext->DrawIndexed(6, 0, 0);
+    }
+
+    //--------------------------------------------------------------------------------------
+    // void Shutdown()
+    // Release objects
+    //--------------------------------------------------------------------------------------
+    void Terrain::Shutdown()
+    {
+        ReleaseObject(m_VertexBuffer);
+        ReleaseObject(m_IndexBuffer);
+        ReleaseObject(m_CubesTexture);
+        ReleaseObject(m_CubesTexSamplerState);
     }
 }

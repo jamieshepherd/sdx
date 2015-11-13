@@ -11,14 +11,15 @@ namespace SDX
         virtual ~Terrain();
         void Init();
         void Render();
+        void Shutdown();
     protected:
-        ID3D11Device1*        g_pDevice;
-        ID3D11DeviceContext1* g_pDeviceContext;
+        ID3D11Device1*            g_pDevice;
+        ID3D11DeviceContext1*     g_pDeviceContext;
 
-        ID3D11Buffer* squareVertBuffer;
-        ID3D11Buffer* squareIndexBuffer;
+        ID3D11Buffer*             m_VertexBuffer;
+        ID3D11Buffer*             m_IndexBuffer;
 
-        ID3D11ShaderResourceView* CubesTexture;
-        ID3D11SamplerState*       CubesTexSamplerState;
+        ID3D11ShaderResourceView* m_CubesTexture;
+        ID3D11SamplerState*       m_CubesTexSamplerState;
     };
 }

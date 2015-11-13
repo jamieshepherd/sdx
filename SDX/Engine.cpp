@@ -93,8 +93,7 @@ void Engine::Update()
 // Shutdown everything from the Engine class
 //--------------------------------------------------------------------------------------
 void Engine::Shutdown()
-{
-    
+{    
 }
 
 //--------------------------------------------------------------------------------------
@@ -105,6 +104,7 @@ void Engine::Exit()
 {
     g_Graphics.Shutdown();
     g_Input.Shutdown();
+    g_Camera.Shutdown();
     Shutdown();
 
     UnregisterClass(m_ClassName.c_str(), m_Window.hInstance);

@@ -2,6 +2,10 @@
 
 namespace SDX
 {
+    //--------------------------------------------------------------------------------------
+    // void ThrowIfFailed()
+    // If the hresult for an operation returns failed, throw an error and message box
+    //--------------------------------------------------------------------------------------
     void ThrowIfFailed(HRESULT hr, LPWSTR message)
     {
         if (FAILED(hr)) {

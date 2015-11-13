@@ -2,14 +2,26 @@
 
 namespace SDX
 {
+    //--------------------------------------------------------------------------------------
+    // Input()
+    // Input constructor
+    //--------------------------------------------------------------------------------------
     Input::Input()
     {
     }
 
+    //--------------------------------------------------------------------------------------
+    // Input()
+    // Input destructor
+    //--------------------------------------------------------------------------------------
     Input::~Input()
     {
     }
 
+    //--------------------------------------------------------------------------------------
+    // InitDirectInput()
+    // Initialises DirectInput and gets keyboard and mouse devices
+    //--------------------------------------------------------------------------------------
     void Input::InitDirectInput(HINSTANCE* m_Instance, HWND* m_WindowHandle)
     {
         ZeroMemory(m_KeyboardKeys, sizeof(m_KeyboardKeys));
@@ -63,14 +75,6 @@ namespace SDX
         }
 
         result = m_MouseDevice->GetDeviceState(sizeof(m_MouseState), (LPVOID)&m_MouseState);
-
-        // If we lost the mouse device, try to get it back
-        /*if (FAILED(result)) {
-            result = m_MouseDevice->Acquire();
-            while (result == DIERR_INPUTLOST) {
-                result = m_MouseDevice->Acquire();
-            }
-        }*/
     }
 
     //--------------------------------------------------------------------------------------

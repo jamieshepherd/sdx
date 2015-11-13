@@ -2,12 +2,10 @@
 
 namespace SDX
 {
-    float randColor()
-    {
-        float randomColor = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        return randomColor;
-    }
-
+    //--------------------------------------------------------------------------------------
+    // Model()
+    // Model constructor
+    //--------------------------------------------------------------------------------------
     Model::Model(ID3D11Device1* pDevice, ID3D11DeviceContext1* pDeviceContext)
     {
         // Set the World matrix
@@ -17,13 +15,22 @@ namespace SDX
 
         g_pDevice = pDevice;
         g_pDeviceContext = pDeviceContext;
+        m_Textured = false;
     }
 
+    //--------------------------------------------------------------------------------------
+    // Model()
+    // Model destructor
+    //--------------------------------------------------------------------------------------
     Model::~Model()
     {
 
     }
 
+    //--------------------------------------------------------------------------------------
+    // LoadModel()
+    // Load a model from an .obj file
+    //--------------------------------------------------------------------------------------
     bool Model::LoadModel(char* filename, wchar_t* texturename, bool leftHanded, bool isTextured)
     {
         m_Textured = isTextured;
@@ -58,7 +65,7 @@ namespace SDX
                 // Vertex texture coordinates
                 else if (streamChar == 't') {
                     float vtcu, vtcv;
-                    fileStream >> vtcu >> vtcv;
+                    fileStream >> std::skipws >> vtcu >> vtcv;
 
                     if (leftHanded) {
                         m_VertexTextureCoords.push_back(XMFLOAT2(vtcu, vtcv));
@@ -80,15 +87,11 @@ namespace SDX
             }
             // Index or face
             else if (streamChar == 'f') {
-                WORD value = 0;
-                std::wstring VertexDefinition;
+                UINT value = 0;
                 m_TriangleCount = 0;
-
-                fileStream.ignore(); // Get rid of the first space
-
+                
                 // As long as we're on the same line
                 while (streamChar != '\n') {
-
                     // TAKE THE FIRST CHAR, THIS IS AN INDEX
                     fileStream >> std::skipws >> value;
                     fileStream.get(streamChar);
@@ -111,6 +114,11 @@ namespace SDX
             }
             // Use material
             else if (streamChar == 'u') {
+
+            }
+
+            // S
+            else if (streamChar == 's') {
 
             }
         }
@@ -139,6 +147,10 @@ namespace SDX
         return true;
     }
 
+    //--------------------------------------------------------------------------------------
+    // bool LoadTexture()
+    // Load the texture file if there is one
+    //--------------------------------------------------------------------------------------
     bool Model::LoadTexture(wchar_t* filename)
     {
         // Load texture file
@@ -157,6 +169,10 @@ namespace SDX
         return true;
     }
 
+    //--------------------------------------------------------------------------------------
+    // bool LoadBuffers()
+    // Initialise and create our buffers()
+    //--------------------------------------------------------------------------------------
     bool Model::LoadBuffers()
     {
         // Load vertex buffer
@@ -185,6 +201,10 @@ namespace SDX
         return true;
     }
 
+    //--------------------------------------------------------------------------------------
+    // void DrawIndexed()
+    // Draw our indices to the screen
+    //--------------------------------------------------------------------------------------
     void Model::DrawIndexed()
     {
         UINT stride = sizeof(VERTEX);
@@ -202,6 +222,10 @@ namespace SDX
         g_pDeviceContext->DrawIndexed(m_Indices.size(), 0, 0);
     }
     
+    //--------------------------------------------------------------------------------------
+    // XMMATRIX GetWorld()
+    // Get the World matrix for this model
+    //--------------------------------------------------------------------------------------
     XMMATRIX Model::GetWorld()
     {
         XMMATRIX t_World;
@@ -209,10 +233,13 @@ namespace SDX
         return t_World;
     }
 
-    void Model::Release()
+    //--------------------------------------------------------------------------------------
+    // void Shutdown()
+    // Release objects
+    //--------------------------------------------------------------------------------------
+    void Model::Shutdown()
     {
-        ReleaseObject(m_MeshVertexBuffer);
-        ReleaseObject(m_MeshIndexBuffer);
-        ReleaseObject(m_Transparency);
+        ReleaseObject(g_pVertexBuffer);
+        ReleaseObject(g_pIndexBuffer);
     }
 }
